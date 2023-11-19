@@ -1,6 +1,10 @@
 import pytest
 from ccpredis import protocol
-from ccpredis.protocol import SimpleString, SimpleError
+from ccpredis.protocol import (
+    SimpleString,
+    SimpleError,
+    Integer
+)
 
 
 @pytest.mark.parametrize("buffer, expected", [
@@ -28,3 +32,9 @@ def test_simple_error():
     buffer = "-Error message\r\n"
     actual = protocol.parse(buffer)
     assert actual == (SimpleError("Error message"), 16)
+
+
+def test_integer():
+    buffer = ":1\r\n"
+    actual = protocol.parse(buffer)
+    assert actual == (Integer(1), 0)

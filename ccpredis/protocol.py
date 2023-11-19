@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-
 RESP_TERMINATOR = '\r\n'
 
 
@@ -8,9 +7,15 @@ RESP_TERMINATOR = '\r\n'
 class SimpleString:
     value: str
 
+
 @dataclass
 class SimpleError:
     value: str
+
+
+@dataclass
+class Integer:
+    value: int
 
 
 def parse(buffer: str) -> (int, str):
@@ -25,4 +30,9 @@ def parse(buffer: str) -> (int, str):
             if resp_terminator != -1:
                 simple_error = SimpleError(buffer[1:resp_terminator])
                 return simple_error, 1 + len(simple_error.value + RESP_TERMINATOR)
+        case ':':
+            resp_terminator = buffer.find(RESP_TERMINATOR)
+            if resp_terminator != -1:
+                integer = Integer(int(buffer[1:resp_terminator]))
+                return integer, 0
     return None, 0
