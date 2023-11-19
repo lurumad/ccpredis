@@ -9,17 +9,17 @@ PROTOCOL_TERMINATOR_LEN = len(PROTOCOL_TERMINATOR)
 
 
 def parse(buffer: str) -> (int, str):
-    protocol_terminator = buffer.find(PROTOCOL_TERMINATOR)
-    if protocol_terminator == -1:
+    protocol_terminator_index = buffer.find(PROTOCOL_TERMINATOR)
+    if protocol_terminator_index == -1:
         return None, 0
-
+    type_content = buffer[1:protocol_terminator_index]
+    type_content_len = protocol_terminator_index + PROTOCOL_TERMINATOR_LEN
     match buffer[0]:
         case '+':
-            simple_string = SimpleString(buffer[1:protocol_terminator])
-            return simple_string, 1 + len(simple_string.value) + PROTOCOL_TERMINATOR_LEN
+            return SimpleString(type_content), type_content_len
         case '-':
-            simple_error = SimpleError(buffer[1:protocol_terminator])
-            return simple_error, 1 + len(simple_error.value) + PROTOCOL_TERMINATOR_LEN
+            simple_error = SimpleError(type_content)
+            return simple_error, type_content_len
         case ':':
-            integer = Integer(int(buffer[1:protocol_terminator]))
-            return integer, len(buffer)
+            integer = Integer(int(type_content))
+            return integer, type_content_len
