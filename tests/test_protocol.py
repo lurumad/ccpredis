@@ -12,3 +12,9 @@ def test_simple_string_incomplete():
     simple_string, size = protocol.parse(buffer)
     assert None == simple_string
     assert 0 == size
+
+def test_simple_string_extra_data():
+    buffer = "+OK\r\nextra"
+    simple_string, size = protocol.parse(buffer)
+    assert "OK" == simple_string
+    assert 5 == size
