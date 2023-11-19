@@ -37,4 +37,4 @@ def test_simple_error():
 def test_integer():
     buffer = ":1\r\n"
     actual = protocol.parse(buffer)
-    assert actual == (Integer(1), 0)
+    assert actual == (Integer(1), 4)

@@ -22,4 +22,4 @@ def parse(buffer: str) -> (int, str):
             return simple_error, 1 + len(simple_error.value) + PROTOCOL_TERMINATOR_LEN
         case ':':
             integer = Integer(int(buffer[1:protocol_terminator]))
-            return integer, 0
+            return integer, len(buffer)
