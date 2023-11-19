@@ -34,7 +34,10 @@ def test_simple_error():
     assert actual == (SimpleError("Error message"), 16)
 
 
-def test_integer():
-    buffer = ":1\r\n"
+@pytest.mark.parametrize("buffer, expected", [
+    (":1\r\n", (Integer(1), 4)),
+    (":-1\r\n", (Integer(-1), 5)),
+])
+def test_integer(buffer, expected):
     actual = protocol.parse(buffer)
-    assert actual == (Integer(1), 4)
+    assert actual == expected
