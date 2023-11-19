@@ -1,20 +1,21 @@
+import pytest
 from ccpredis import protocol
+from ccpredis.data_types.simple_string import SimpleString
 
-
-def test_simple_string():
-    buffer = "+OK\r\n"
-    simple_string, size = protocol.parse(buffer)
-    assert "OK" == simple_string
-    assert 5 == size
+@pytest.mark.parametrize("buffer, expected", [
+    ("+OK\r\n", (SimpleString("OK"), 5)),
+    ("+PONG\r\n", (SimpleString("PONG"), 7)),
+])
+def test_simple_string(buffer, expected):
+    actual = protocol.parse(buffer)
+    assert actual == expected
 
 def test_simple_string_incomplete():
     buffer = "+OK"
-    simple_string, size = protocol.parse(buffer)
-    assert None == simple_string
-    assert 0 == size
+    actual = protocol.parse(buffer)
+    assert actual == (None, 0)
 
 def test_simple_string_extra_data():
     buffer = "+OK\r\nextra"
-    simple_string, size = protocol.parse(buffer)
-    assert "OK" == simple_string
-    assert 5 == size
+    actual = protocol.parse(buffer)
+    assert actual == (SimpleString("OK"), 5)
