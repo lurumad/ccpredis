@@ -8,36 +8,18 @@ from pyredis.types import (
 
 
 @pytest.mark.parametrize("buffer, expected", [
-    ("+OK\r\n", (SimpleString("OK"), 5)),
-    ("+PONG\r\n", (SimpleString("PONG"), 7)),
+    # Simple Strings
+    (b"+OK\r\n", (SimpleString("OK"), 5)),
+    (b"+PONG\r\n", (SimpleString("PONG"), 7)),
+    (b"+OK", (None, 0)),
+    (b"+OK\r\nExtra", (SimpleString("OK"), 5)),
+    # Simple Errors
+    (b"-Error message\r\n", (SimpleError("Error message"), 16)),
+    # Integers
+    (b":1\r\n", (Integer(1), 4)),
+    (b":-1\r\n", (Integer(-1), 5)),
 ])
-def test_simple_string(buffer, expected):
+def test_protocol_parse(buffer, expected):
     actual = protocol.parse(buffer)
     assert actual == expected
 
-
-def test_simple_string_incomplete():
-    buffer = "+OK"
-    actual = protocol.parse(buffer)
-    assert actual == (None, 0)
-
-
-def test_simple_string_extra_data():
-    buffer = "+OK\r\nextra"
-    actual = protocol.parse(buffer)
-    assert actual == (SimpleString("OK"), 5)
-
-
-def test_simple_error():
-    buffer = "-Error message\r\n"
-    actual = protocol.parse(buffer)
-    assert actual == (SimpleError("Error message"), 16)
-
-
-@pytest.mark.parametrize("buffer, expected", [
-    (":1\r\n", (Integer(1), 4)),
-    (":-1\r\n", (Integer(-1), 5)),
-])
-def test_integer(buffer, expected):
-    actual = protocol.parse(buffer)
-    assert actual == expected
