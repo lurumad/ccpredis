@@ -1,22 +1,11 @@
-from dataclasses import dataclass
+from pyredis.types import (
+    SimpleString,
+    SimpleError,
+    Integer,
+)
 
 PROTOCOL_TERMINATOR = '\r\n'
 PROTOCOL_TERMINATOR_LEN = len(PROTOCOL_TERMINATOR)
-
-
-@dataclass
-class SimpleString:
-    value: str
-
-
-@dataclass
-class SimpleError:
-    value: str
-
-
-@dataclass
-class Integer:
-    value: int
 
 
 def parse(buffer: str) -> (int, str):

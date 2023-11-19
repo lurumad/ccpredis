@@ -1,9 +1,9 @@
 import pytest
-from ccpredis import protocol
-from ccpredis.protocol import (
+from pyredis import protocol
+from pyredis.types import (
     SimpleString,
     SimpleError,
-    Integer
+    Integer,
 )
 
 
