@@ -15,6 +15,8 @@ from pyredis.types import (
     (b"+OK\r\nExtra", (SimpleString("OK"), 5)),
     # Simple Errors
     (b"-Error message\r\n", (SimpleError("Error message"), 16)),
+    (b"Error message\r\n", (None, 0)),
+    (b"-Error message\r\nExtra", (SimpleError("Error message"), 16)),
     # Integers
     (b":1\r\n", (Integer(1), 4)),
     (b":-1\r\n", (Integer(-1), 5)),

@@ -21,3 +21,4 @@ def parse(buffer):
             return SimpleError(type_content), type_content_len
         case ':':
             return Integer(int(type_content)), type_content_len
+    return None, 0
