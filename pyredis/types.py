@@ -14,3 +14,8 @@ class SimpleError:
 @dataclass
 class Integer:
     value: int
+
+
+@dataclass
+class BulkString:
+    value: str

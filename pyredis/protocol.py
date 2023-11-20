@@ -2,6 +2,7 @@ from pyredis.types import (
     SimpleString,
     SimpleError,
     Integer,
+    BulkString,
 )
 
 PROTOCOL_TERMINATOR = b"\r\n"
@@ -21,4 +22,8 @@ def parse(buffer):
             return SimpleError(type_content), type_content_len
         case ':':
             return Integer(int(type_content)), type_content_len
+        case '$':
+            if not buffer.endswith(b"\r\n"):
+                return None, 0
+            return BulkString(type_content), type_content_len
     return None, 0
