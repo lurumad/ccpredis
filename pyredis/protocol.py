@@ -25,5 +25,7 @@ def parse(buffer):
         case '$':
             if not buffer.endswith(b"\r\n"):
                 return None, 0
-            return BulkString(type_content), type_content_len
+            string_length = int(type_content)
+            type_content = buffer[type_content_len:type_content_len + string_length].decode()
+            return BulkString(type_content), buffer.rfind(PROTOCOL_TERMINATOR) + PROTOCOL_TERMINATOR_LEN
     return None, 0
