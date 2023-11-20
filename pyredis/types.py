@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Sequence
 
 
 @dataclass
@@ -8,14 +9,19 @@ class SimpleString:
 
 @dataclass
 class SimpleError:
-    value: str
+    data: str
 
 
 @dataclass
 class Integer:
-    value: int
+    data: int
 
 
 @dataclass
 class BulkString:
-    value: str
+    data: str
+
+
+@dataclass
+class Array:
+    data: []

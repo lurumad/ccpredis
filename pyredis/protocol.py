@@ -2,7 +2,7 @@ from pyredis.types import (
     SimpleString,
     SimpleError,
     Integer,
-    BulkString,
+    BulkString, Array,
 )
 
 PROTOCOL_TERMINATOR = b"\r\n"
@@ -39,5 +39,7 @@ def parse(buffer):
                 BulkString(type_content),
                 protocol_terminator_index + PROTOCOL_TERMINATOR_LEN + string_length + PROTOCOL_TERMINATOR_LEN
             )
+        case '*':
+            return Array([]), protocol_terminator_index + PROTOCOL_TERMINATOR_LEN
 
     return None, 0
