@@ -23,7 +23,11 @@ from pyredis.types import (
     (b":-1\r\n", (Integer(-1), 5)),
     # Bulk Strings
     (b"$5\r\nhello", (None, 0)),
-    (b"$5\r\nhello\r\n", (BulkString("hello"), 11)),
+    (b"$5\r\nhello\r\n", (BulkString(b"hello"), 11)),
+    (b"$12\r\nHello, World\r\n", (BulkString(b"Hello, World"), 19)),
+    (b"$12\r\nHello\r\nWorld\r\n", (BulkString(b"Hello\r\nWorld"), 19)),
+    (b"$0\r\n\r\n", (BulkString(b""), 6)),
+    (b"$-1\r\n", (None, 5)),
 ])
 def test_protocol_parse(buffer, expected):
     actual = protocol.parse(buffer)
