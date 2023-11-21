@@ -40,6 +40,18 @@ def parse(buffer):
                 protocol_terminator_index + PROTOCOL_TERMINATOR_LEN + string_length + PROTOCOL_TERMINATOR_LEN
             )
         case '*':
+            array_length = int(type_content)
+            data = []
+
+            for i in range(0, array_length):
+                additional_resp_element = buffer[type_content_len:]
+                element, size = parse(additional_resp_element)
+                data.append(element)
+                type_content_len = type_content_len + size
+
+            if len(data) > 0:
+                return Array(data), type_content_len
+
             return Array([]), protocol_terminator_index + PROTOCOL_TERMINATOR_LEN
 
     return None, 0

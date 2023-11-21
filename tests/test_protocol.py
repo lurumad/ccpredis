@@ -4,7 +4,8 @@ from pyredis.types import (
     SimpleString,
     SimpleError,
     Integer,
-    BulkString, Array,
+    BulkString,
+    Array,
 )
 
 
@@ -29,7 +30,8 @@ from pyredis.types import (
     (b"$0\r\n\r\n", (BulkString(b""), 6)),
     (b"$-1\r\n", (None, 5)),
     # Arrays
-    (b"*0\r\n", (Array([]), 4))
+    (b"*0\r\n", (Array([]), 4)),
+    (b"*2\r\n$5\r\nhello\r\n$5\r\nworld\r\n", (Array([BulkString(b"hello"), BulkString(b"world")]), 26))
 ])
 def test_protocol_parse(buffer, expected):
     actual = protocol.parse(buffer)

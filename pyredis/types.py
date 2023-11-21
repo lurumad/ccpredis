@@ -1,3 +1,4 @@
+from abc import ABC
 from dataclasses import dataclass
 from typing import Sequence
 
@@ -19,7 +20,7 @@ class Integer:
 
 @dataclass
 class BulkString:
-    data: str
+    data: bytes
 
 
 @dataclass
