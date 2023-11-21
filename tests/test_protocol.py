@@ -30,8 +30,11 @@ from pyredis.types import (
     (b"$0\r\n\r\n", (BulkString(b""), 6)),
     (b"$-1\r\n", (None, 5)),
     # Arrays
+    (b"*0", (None, 0)),
     (b"*0\r\n", (Array([]), 4)),
-    (b"*2\r\n$5\r\nhello\r\n$5\r\nworld\r\n", (Array([BulkString(b"hello"), BulkString(b"world")]), 26))
+    (b"*-1\r\n", (Array(None), 5)),
+    (b"*2\r\n$5\r\nhello\r\n$5\r\nworld\r\n", (Array([BulkString(b"hello"), BulkString(b"world")]), 26)),
+    (b"*3\r\n:1\r\n:2\r\n:3\r\n", (Array([Integer(1), Integer(2), Integer(3)]), 16))
 ])
 def test_protocol_parse(buffer, expected):
     actual = protocol.parse(buffer)

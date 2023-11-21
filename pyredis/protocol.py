@@ -43,15 +43,18 @@ def parse(buffer):
             array_length = int(type_content)
             resp_elements = []
 
+            if array_length == 0:
+                return Array([]), type_content_len
+
+            if array_length == -1:
+                return Array(None), type_content_len
+
             for i in range(0, array_length):
                 additional_resp_elements = buffer[type_content_len:]
                 element, size = parse(additional_resp_elements)
                 resp_elements.append(element)
                 type_content_len = type_content_len + size
 
-            if len(resp_elements) > 0:
-                return Array(resp_elements), type_content_len
-
-            return Array([]), protocol_terminator_index + PROTOCOL_TERMINATOR_LEN
+            return Array(resp_elements), type_content_len
 
     return None, 0
