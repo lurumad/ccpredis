@@ -65,18 +65,5 @@ def encode_message(data_type):
 
 
 def encode_command(command):
-    split_command = command.split(' ')
-    match split_command[0].lower():
-        case "ping":
-            if len(split_command) == 1:
-                return SimpleString(split_command[0])
-            return BulkString(command.encode())
-        case "echo":
-            return BulkString(command.encode())
-        case "set":
-            return BulkString(command.encode())
-        case "get":
-            return BulkString(command.encode())
-
-    return None
+    return Array([BulkString(data.encode()) for data in command.split()])
 
