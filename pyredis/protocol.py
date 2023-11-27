@@ -73,6 +73,8 @@ def encode_command(command):
             return BulkString(command.encode())
         case "echo":
             return BulkString(command.encode())
+        case "set":
+            return BulkString(command.encode())
 
     return None
 
