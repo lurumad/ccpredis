@@ -69,6 +69,7 @@ def test_encode_message(data_type, expected):
     [
         ("ping", SimpleString("ping")),
         ("ping hello", BulkString(b"ping hello")),
+        ("echo hello", BulkString(b"echo hello")),
     ],
 )
 def test_encode_command(command, expected):
