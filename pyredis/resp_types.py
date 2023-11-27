@@ -5,6 +5,9 @@ from dataclasses import dataclass
 class SimpleString:
     data: str
 
+    def as_str(self):
+        return self.data
+
     def resp_encode(self) -> bytes:
         return f"+{self.data}\r\n".encode()
 
@@ -12,6 +15,9 @@ class SimpleString:
 @dataclass
 class SimpleError:
     data: str
+
+    def as_str(self):
+        return self.data
 
     def resp_encode(self) -> bytes:
         return f"-{self.data}\r\n".encode()
@@ -21,6 +27,9 @@ class SimpleError:
 class Integer:
     data: int
 
+    def as_str(self):
+        return str(self.data)
+
     def resp_encode(self) -> bytes:
         return f":{self.data}\r\n".encode()
 
@@ -28,6 +37,9 @@ class Integer:
 @dataclass
 class BulkString:
     data: bytes
+
+    def as_str(self):
+        return self.data.decode()
 
     def resp_encode(self) -> bytes:
         if self.data is None:
