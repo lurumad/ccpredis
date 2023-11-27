@@ -71,6 +71,7 @@ def test_encode_message(data_type, expected):
         ("ping hello", BulkString(b"ping hello")),
         ("echo hello", BulkString(b"echo hello")),
         ("set key value", BulkString(b"set key value")),
+        ("get key", BulkString(b"get key")),
     ],
 )
 def test_encode_command(command, expected):
