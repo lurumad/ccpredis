@@ -1,5 +1,6 @@
 import pytest
 from pyredis import protocol
+from pyredis.protocol import encode_message
 from pyredis.types import (
     SimpleString,
     SimpleError,
@@ -40,3 +41,24 @@ def test_protocol_parse(buffer, expected):
     actual = protocol.parse(buffer)
     assert actual == expected
 
+
+@pytest.mark.parametrize(
+    "data_type, expected",
+    [
+        (SimpleString("OK"), b"+OK\r\n"),
+        (SimpleError("Error"), b"-Error\r\n"),
+        (Integer(100), b":100\r\n"),
+        (BulkString(b"This is a Bulk String"), b"$21\r\nThis is a Bulk String\r\n"),
+        (BulkString(b""), b"$0\r\n\r\n"),
+        (BulkString(None), b"$-1\r\n"),
+        (Array([]), b"*0\r\n"),
+        (Array(None), b"*-1\r\n"),
+        (
+                Array([SimpleString("String"), Integer(2), SimpleString("String2")]),
+                b"*3\r\n+String\r\n:2\r\n+String2\r\n",
+        ),
+    ],
+)
+def test_encode_message(data_type, expected):
+    encoded_message = encode_message(data_type)
+    assert encoded_message == expected

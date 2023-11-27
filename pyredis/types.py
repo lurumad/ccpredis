@@ -1,28 +1,54 @@
-from abc import ABC
 from dataclasses import dataclass
-from typing import Sequence
 
 
 @dataclass
 class SimpleString:
-    value: str
+    data: str
+
+    def resp_encode(self) -> bytes:
+        return f"+{self.data}\r\n".encode()
 
 
 @dataclass
 class SimpleError:
     data: str
 
+    def resp_encode(self) -> bytes:
+        return f"-{self.data}\r\n".encode()
+
 
 @dataclass
 class Integer:
     data: int
+
+    def resp_encode(self) -> bytes:
+        return f":{self.data}\r\n".encode()
 
 
 @dataclass
 class BulkString:
     data: bytes
 
+    def resp_encode(self) -> bytes:
+        if self.data is None:
+            return b"$-1\r\n"
+
+        return f"${len(self.data)}\r\n{self.data.decode()}\r\n".encode()
+
 
 @dataclass
 class Array:
     data: []
+
+    def resp_encode(self) -> bytes:
+        if self.data is None:
+            return b"*-1\r\n"
+
+        if len(self.data) is 0:
+            return b"*0\r\n"
+
+        resp_elements = []
+        for element in self.data:
+            resp_elements.append(element.resp_encode().decode())
+        return f"*{len(resp_elements)}\r\n{''.join(resp_elements)}".encode()
+

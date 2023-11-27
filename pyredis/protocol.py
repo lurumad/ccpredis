@@ -58,3 +58,7 @@ def parse(buffer):
             return Array(resp_elements), type_content_len
 
     return None, 0
+
+
+def encode_message(data_type):
+    return data_type.resp_encode()
