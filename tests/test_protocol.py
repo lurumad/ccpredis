@@ -67,7 +67,8 @@ def test_encode_message(data_type, expected):
 @pytest.mark.parametrize(
     "command, expected",
     [
-        ("ping", SimpleString("PING")),
+        ("ping", SimpleString("ping")),
+        ("ping hello", BulkString(b"ping hello")),
     ],
 )
 def test_encode_command(command, expected):
