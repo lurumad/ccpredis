@@ -52,6 +52,9 @@ class BulkString:
 class Array:
     data: []
 
+    def as_str(self):
+        return " ".join([data_type.as_str() for data_type in self.data])
+
     def resp_encode(self) -> bytes:
         if self.data is None:
             return b"*-1\r\n"
