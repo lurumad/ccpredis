@@ -1,4 +1,4 @@
-from pyredis.types import (
+from pyredis.resp_types import (
     SimpleString,
     SimpleError,
     Integer,
@@ -62,3 +62,11 @@ def parse(buffer):
 
 def encode_message(data_type):
     return data_type.resp_encode()
+
+
+def encode_command(command):
+    upper = command.upper()
+    match upper:
+        case "PING":
+            return SimpleString(upper)
+

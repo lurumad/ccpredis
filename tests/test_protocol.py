@@ -1,7 +1,7 @@
 import pytest
 from pyredis import protocol
-from pyredis.protocol import encode_message
-from pyredis.types import (
+from pyredis.protocol import encode_message, encode_command
+from pyredis.resp_types import (
     SimpleString,
     SimpleError,
     Integer,
@@ -62,3 +62,16 @@ def test_protocol_parse(buffer, expected):
 def test_encode_message(data_type, expected):
     encoded_message = encode_message(data_type)
     assert encoded_message == expected
+
+
+@pytest.mark.parametrize(
+    "command, expected",
+    [
+        ("ping", SimpleString("PING")),
+    ],
+)
+def test_encode_command(command, expected):
+    encoded_command = encode_command(command)
+    assert encoded_command == expected
+
+
