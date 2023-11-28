@@ -1,3 +1,4 @@
+import os
 import socket
 
 from pyredis.commands import handle_command
@@ -18,21 +19,27 @@ class Server:
         self.server.listen()
 
     def run(self):
-        while True:
-            client_connection, client_address = self.server.accept()
-            print(f"Connected by {client_address}")
-            self.handle(client_connection)
+        try:
+            while True:
+                client_connection, client_address = self.server.accept()
+                print(f"Connected by {client_address}")
+                self.handle(client_connection)
+        except KeyboardInterrupt:
+            print("Caught keyboard interrupt, exiting")
 
     def handle(self, connection):
-        while True:
-            data = connection.recv(RECV_SIZE)
+        try:
+            while True:
+                data = connection.recv(RECV_SIZE)
 
-            if not data:
-                break
+                if not data:
+                    break
 
-            command, size = parse(data)
-            command_parsed = handle_command(command)
-            connection.sendall(command_parsed.resp_encode())
+                command, size = parse(data)
+                command_parsed = handle_command(command)
+                connection.sendall(command_parsed.resp_encode())
+        finally:
+            connection.close()
 
 
 if __name__ == "__main__":
