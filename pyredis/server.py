@@ -1,7 +1,8 @@
 import socket
 
+from pyredis.commands import handle_command
 from pyredis.protocol import parse
-from pyredis.resp_types import SimpleString
+from pyredis.resp_types import SimpleString, BulkString
 
 DEFAULT_PORT = 6379
 DEFAULT_SERVER = "127.0.0.1"
@@ -29,12 +30,9 @@ class Server:
             if not data:
                 break
 
-            array, size = parse(data)
-            command, *args = array.as_str().split()
-
-            match command:
-                case "PING":
-                    connection.sendall(SimpleString("PONG").resp_encode())
+            command, size = parse(data)
+            command_parsed = handle_command(command)
+            connection.sendall(command_parsed.resp_encode())
 
 
 if __name__ == "__main__":
