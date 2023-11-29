@@ -59,7 +59,7 @@ class Array:
         if self.data is None:
             return b"*-1\r\n"
 
-        if len(self.data) is 0:
+        if len(self.data) == 0:
             return b"*0\r\n"
 
         resp_elements = []
