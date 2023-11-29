@@ -1,9 +1,7 @@
-import os
 import socket
 
 from pyredis.commands import handle_command
 from pyredis.protocol import parse
-from pyredis.resp_types import SimpleString, BulkString
 
 DEFAULT_PORT = 6379
 DEFAULT_SERVER = "127.0.0.1"
@@ -41,7 +39,3 @@ class Server:
         finally:
             connection.close()
 
-
-if __name__ == "__main__":
-    server = Server(DEFAULT_SERVER, DEFAULT_PORT)
-    server.run()

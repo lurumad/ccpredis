@@ -1,4 +1,4 @@
-from pyredis.resp_types import SimpleString, BulkString, SimpleError
+from pyredis.resp_types import SimpleString, BulkString, SimpleError, Array
 
 
 def handle_command(command):
@@ -18,3 +18,6 @@ def handle_command(command):
     args = " ".join([f"'{arg.data.decode()}'" for arg in command_args])
     return SimpleError(f"ERR unknown command '{command.data.decode().upper()}', with args beginning with: {args}")
 
+
+def encode_command(command):
+    return Array([BulkString(data.encode()) for data in command.split()])

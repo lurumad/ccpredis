@@ -1,6 +1,7 @@
 import pytest
 from pyredis import protocol
-from pyredis.protocol import encode_message, encode_command
+from pyredis.protocol import encode_message
+from pyredis.commands import encode_command
 from pyredis.resp_types import (
     SimpleString,
     SimpleError,

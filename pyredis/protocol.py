@@ -64,6 +64,3 @@ def encode_message(data_type):
     return data_type.resp_encode()
 
 
-def encode_command(command):
-    return Array([BulkString(data.encode()) for data in command.split()])
-

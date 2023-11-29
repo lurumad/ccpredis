@@ -2,7 +2,8 @@ import typer
 import socket
 from typing_extensions import Annotated
 
-from pyredis.protocol import encode_message, encode_command, parse
+from pyredis.protocol import encode_message, parse
+from pyredis.commands import encode_command
 from pyredis.resp_types import Array
 
 DEFAULT_PORT = 6379
