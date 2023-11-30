@@ -1,3 +1,4 @@
+import logging
 import socket
 
 from pyredis.commands import handle_command
@@ -17,16 +18,17 @@ class Server:
         self.server.listen()
 
     def run(self):
+        logger = logging.getLogger(__name__)
         try:
             while True:
                 client_connection, client_address = self.server.accept()
-                print(f"Connected by {client_address}")
+                logger.info(f"Connected by {client_address}")
                 self.handle(client_connection)
         except KeyboardInterrupt:
-            print("Caught keyboard interrupt, exiting")
+            logger.info("Caught keyboard interrupt, exiting")
 
     def handle(self, connection):
-        try:
+        with connection:
             while True:
                 data = connection.recv(RECV_SIZE)
 
@@ -36,5 +38,3 @@ class Server:
                 command, size = parse(data)
                 command_parsed = handle_command(command)
                 connection.sendall(command_parsed.resp_encode())
-        finally:
-            connection.close()
