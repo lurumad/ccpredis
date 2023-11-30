@@ -38,4 +38,3 @@ class Server:
                 connection.sendall(command_parsed.resp_encode())
         finally:
             connection.close()
-

@@ -62,5 +62,3 @@ def parse(buffer):
 
 def encode_message(data_type):
     return data_type.resp_encode()
-
-

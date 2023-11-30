@@ -66,4 +66,3 @@ class Array:
         for element in self.data:
             resp_elements.append(element.resp_encode().decode())
         return f"*{len(resp_elements)}\r\n{''.join(resp_elements)}".encode()
-
