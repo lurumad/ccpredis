@@ -1,8 +1,9 @@
 from pyredis.resp_types import (
     SimpleString,
-    SimpleError,
+    Error,
     Integer,
-    BulkString, Array,
+    BulkString,
+    Array,
 )
 
 PROTOCOL_TERMINATOR = b"\r\n"
@@ -16,30 +17,36 @@ def parse(buffer):
     type_content = buffer[1:protocol_terminator_index].decode()
     type_content_len = protocol_terminator_index + PROTOCOL_TERMINATOR_LEN
     match chr(buffer[0]):
-        case '+':
+        case "+":
             return SimpleString(type_content), type_content_len
-        case '-':
-            return SimpleError(type_content), type_content_len
-        case ':':
+        case "-":
+            return Error(type_content), type_content_len
+        case ":":
             return Integer(int(type_content)), type_content_len
-        case '$':
+        case "$":
             string_length = int(type_content)
 
             if string_length == -1:
                 return None, type_content_len
 
             if (
-                len(buffer) <
-                protocol_terminator_index + PROTOCOL_TERMINATOR_LEN + string_length + PROTOCOL_TERMINATOR_LEN
+                len(buffer)
+                < protocol_terminator_index
+                + PROTOCOL_TERMINATOR_LEN
+                + string_length
+                + PROTOCOL_TERMINATOR_LEN
             ):
                 return None, 0
 
-            type_content = buffer[type_content_len:type_content_len + string_length]
+            type_content = buffer[type_content_len : type_content_len + string_length]
             return (
                 BulkString(type_content),
-                protocol_terminator_index + PROTOCOL_TERMINATOR_LEN + string_length + PROTOCOL_TERMINATOR_LEN
+                protocol_terminator_index
+                + PROTOCOL_TERMINATOR_LEN
+                + string_length
+                + PROTOCOL_TERMINATOR_LEN,
             )
-        case '*':
+        case "*":
             array_length = int(type_content)
             resp_elements = []
 

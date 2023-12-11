@@ -12,8 +12,8 @@ RECV_SIZE = 1024
 
 
 def main(
-        server: Annotated[str, typer.Argument()] = DEFAULT_SERVER,
-        port: Annotated[int, typer.Argument()] = DEFAULT_PORT,
+    server: Annotated[str, typer.Argument()] = DEFAULT_SERVER,
+    port: Annotated[int, typer.Argument()] = DEFAULT_PORT,
 ):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
         client.connect((server, port))
@@ -44,5 +44,5 @@ def main(
                     break
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     typer.run(main)

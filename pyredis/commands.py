@@ -1,7 +1,7 @@
-from pyredis.resp_types import SimpleString, BulkString, SimpleError, Array
+from pyredis.resp_types import SimpleString, BulkString, Error, Array
 
 
-def handle_command(command):
+def handle_command(command: Array):
     command, *command_args = command.data
     match command.data.decode().upper():
         case "PING":
@@ -9,14 +9,20 @@ def handle_command(command):
                 return SimpleString("PONG")
             if len(command_args) == 1:
                 return BulkString(command_args[0].data)
-            return SimpleError("ERR wrong number of arguments for 'ping' command")
+            return Error("ERR wrong number of arguments for 'ping' command")
         case "ECHO":
             if len(command_args) == 1:
                 return BulkString(command_args[0].data)
-            return SimpleError("ERR wrong number of arguments for 'echo' command")
+            return Error("ERR wrong number of arguments for 'echo' command")
+        case "SET":
+            if len(command_args) != 2:
+                return Error("ERR wrong number of arguments for 'set' command")
+            return SimpleString("OK")
 
     args = " ".join([f"'{arg.data.decode()}'" for arg in command_args])
-    return SimpleError(f"ERR unknown command '{command.data.decode().upper()}', with args beginning with: {args}")
+    return Error(
+        f"ERR unknown command '{command.data.decode().upper()}', with args beginning with: {args}"
+    )
 
 
 def encode_command(command):

@@ -13,7 +13,7 @@ class SimpleString:
 
 
 @dataclass
-class SimpleError:
+class Error:
     data: str
 
     def as_str(self):
