@@ -1,6 +1,6 @@
 import pytest
 
-from pyredis.commands import handle_command
+from pyredis.commands import handle_command, encode_command
 from pyredis.datastore import DataStore
 from pyredis.resp_types import (
     SimpleString,
@@ -56,3 +56,21 @@ data_store = DataStore()
 def test_handle_command(command, expected):
     result = handle_command(command, data_store)
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    "command, expected",
+    [
+        ("ping", Array([BulkString(b"ping")])),
+        ("ping hello", Array([BulkString(b"ping"), BulkString(b"hello")])),
+        ("echo hello", Array([BulkString(b"echo"), BulkString(b"hello")])),
+        (
+            "set key value",
+            Array([BulkString(b"set"), BulkString(b"key"), BulkString(b"value")]),
+        ),
+        ("get key", Array([BulkString(b"get"), BulkString(b"key")])),
+    ],
+)
+def test_encode_command(command, expected):
+    encoded_command = encode_command(command)
+    assert encoded_command == expected

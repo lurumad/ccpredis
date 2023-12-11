@@ -38,5 +38,5 @@ class Server:
                     break
 
                 command, size = parse(data)
-                command_parsed = handle_command(command, self._datastore)
-                connection.sendall(command_parsed.resp_encode())
+                result = handle_command(command, self._datastore)
+                connection.sendall(result.resp_encode())
