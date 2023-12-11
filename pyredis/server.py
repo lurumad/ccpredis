@@ -2,6 +2,7 @@ import logging
 import socket
 
 from pyredis.commands import handle_command
+from pyredis.datastore import DataStore
 from pyredis.protocol import parse
 
 DEFAULT_PORT = 6379
@@ -16,6 +17,7 @@ class Server:
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind((self.host, self.port))
         self.server.listen()
+        self._datastore = DataStore()
 
     def run(self):
         logger = logging.getLogger(__name__)
@@ -36,5 +38,5 @@ class Server:
                     break
 
                 command, size = parse(data)
-                command_parsed = handle_command(command)
+                command_parsed = handle_command(command, self._datastore)
                 connection.sendall(command_parsed.resp_encode())

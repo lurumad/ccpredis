@@ -1,7 +1,8 @@
+from pyredis.datastore import DataStore
 from pyredis.resp_types import SimpleString, BulkString, Error, Array
 
 
-def handle_command(command: Array):
+def handle_command(command: Array, datastore: DataStore):
     command, *command_args = command.data
     match command.data.decode().upper():
         case "PING":
@@ -17,7 +18,19 @@ def handle_command(command: Array):
         case "SET":
             if len(command_args) != 2:
                 return Error("ERR wrong number of arguments for 'set' command")
+            key = command_args[0].data.decode()
+            value = command_args[1].data.decode()
+            datastore[key] = value
             return SimpleString("OK")
+        case "GET":
+            if len(command_args) != 1:
+                return Error("ERR wrong number of arguments for 'get' command")
+            try:
+                key = command_args[0].data.decode()
+                value = datastore[key]
+            except KeyError:
+                return BulkString(None)
+            return BulkString(value.encode())
 
     args = " ".join([f"'{arg.data.decode()}'" for arg in command_args])
     return Error(

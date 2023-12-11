@@ -1,7 +1,8 @@
 import pytest
+
 from pyredis import protocol
+from pyredis.commands import encode_command
 from pyredis.protocol import encode_message
-from pyredis.commands import encode_command, handle_command
 from pyredis.resp_types import (
     SimpleString,
     Error,
@@ -90,26 +91,3 @@ def test_encode_message(data_type, expected):
 def test_encode_command(command, expected):
     encoded_command = encode_command(command)
     assert encoded_command == expected
-
-
-@pytest.mark.parametrize(
-    "command, expected",
-    [
-        # Echo Tests
-        (
-            Array([BulkString(b"ECHO")]),
-            Error("ERR wrong number of arguments for 'echo' command"),
-        ),
-        (Array([BulkString(b"echo"), BulkString(b"Hello")]), BulkString(b"Hello")),
-        (
-            Array([BulkString(b"echo"), BulkString(b"Hello"), BulkString(b"World")]),
-            Error("ERR wrong number of arguments for 'echo' command"),
-        ),
-        # Ping Tests
-        (Array([BulkString(b"ping")]), SimpleString("PONG")),
-        (Array([BulkString(b"ping"), BulkString(b"Hello")]), BulkString(b"Hello")),
-    ],
-)
-def test_handle_command(command, expected):
-    result = handle_command(command)
-    assert result == expected

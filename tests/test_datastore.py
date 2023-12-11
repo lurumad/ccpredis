@@ -1,4 +1,4 @@
-from pyredis.data_store import DataStore
+from pyredis.datastore import DataStore
 
 
 def test_set_and_get_item():

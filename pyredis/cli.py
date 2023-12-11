@@ -40,7 +40,11 @@ def main(
                         for count, item in enumerate(data_type.data):
                             print(f'{count + 1} "{item.as_str()}"')
                     else:
+                        print(data_type)
                         print(data_type.as_str())
+                    break
+                else:
+                    print("(nil)")
                     break
 
 
