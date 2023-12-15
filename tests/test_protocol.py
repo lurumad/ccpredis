@@ -72,5 +72,3 @@ def test_protocol_parse(buffer, expected):
 def test_encode_message(data_type, expected):
     encoded_message = encode_message(data_type)
     assert encoded_message == expected
-
-

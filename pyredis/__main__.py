@@ -1,8 +1,10 @@
 import typer
+import logging
 from pyredis.server import Server
 
 REDIS_DEFAULT_PORT = 6379
 REDIS_DEFAULT_HOST = "127.0.0.1"
+logging.basicConfig(level=logging.INFO)
 
 
 def main(host=None, port=None):
