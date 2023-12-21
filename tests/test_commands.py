@@ -44,7 +44,15 @@ data_store = DataStore()
             SimpleString("OK"),
         ),
         (
-            Array([BulkString(b'set'), BulkString(b'key'), BulkString(b'value'), BulkString(b'ex'), BulkString(b'60')]),
+            Array(
+                [
+                    BulkString(b"set"),
+                    BulkString(b"key"),
+                    BulkString(b"value"),
+                    BulkString(b"ex"),
+                    BulkString(b"60"),
+                ]
+            ),
             SimpleString("OK"),
         ),
         # Get Tests
@@ -70,8 +78,8 @@ data_store = DataStore()
         "SET key value EX 60",
         "GET",
         "GET key",
-        "GET invalid"
-    ]
+        "GET invalid",
+    ],
 )
 def test_handle_command(command, expected):
     result = handle_command(command, data_store)
@@ -102,13 +110,15 @@ def test_get_with_expiry():
     value = "value"
     px = 100
 
-    command = Array([
-        BulkString(b"set"),
-        BulkString(f"{key}".encode()),
-        BulkString(f"{value}".encode()),
-        BulkString(b"px"),
-        BulkString(f"{px}".encode())
-    ])
+    command = Array(
+        [
+            BulkString(b"set"),
+            BulkString(f"{key}".encode()),
+            BulkString(f"{value}".encode()),
+            BulkString(b"px"),
+            BulkString(f"{px}".encode()),
+        ]
+    )
 
     result = handle_command(command, datastore)
     assert result == SimpleString("OK")
@@ -116,4 +126,3 @@ def test_get_with_expiry():
     command = Array([BulkString(b"get"), BulkString(f"{key}".encode())])
     result = handle_command(command, datastore)
     assert result == BulkString(None)
-

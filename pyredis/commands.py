@@ -29,15 +29,11 @@ def handle_command(command: Array, datastore: DataStore):
                 match option.upper():
                     case "EX":
                         datastore.set_with_expiry(
-                            key=key,
-                            value=value,
-                            expiry=float(option_value)
+                            key=key, value=value, expiry=float(option_value)
                         )
                     case "PX":
                         datastore.set_with_expiry(
-                            key=key,
-                            value=value,
-                            expiry=float(option_value) / 1000
+                            key=key, value=value, expiry=float(option_value) / 1000
                         )
             return SimpleString("OK")
         case "GET":

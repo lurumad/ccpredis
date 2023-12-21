@@ -25,22 +25,14 @@ class DataStore:
 
     def __setitem__(self, key, value):
         with self._lock:
-            self._data[key] = CacheEntry(
-                value=value,
-                expiry=-1
-            )
+            self._data[key] = CacheEntry(value=value, expiry=-1)
 
     def set_with_expiry(self, key: any, value: any, expiry: float) -> None:
         with self._lock:
             expiry_unix_timestamp = time.time() + expiry
-            self._data[key] = CacheEntry(
-                value=value,
-                expiry=expiry_unix_timestamp
-            )
+            self._data[key] = CacheEntry(value=value, expiry=expiry_unix_timestamp)
 
     def _check_expire_passively(self, key, entry):
         if entry.expired(time.time()):
             del self._data[key]
             raise KeyError
-
-

@@ -30,15 +30,15 @@ def parse(buffer):
                 return None, type_content_len
 
             if (
-                    len(buffer)
-                    < protocol_terminator_index
-                    + PROTOCOL_TERMINATOR_LEN
-                    + string_length
-                    + PROTOCOL_TERMINATOR_LEN
+                len(buffer)
+                < protocol_terminator_index
+                + PROTOCOL_TERMINATOR_LEN
+                + string_length
+                + PROTOCOL_TERMINATOR_LEN
             ):
                 return None, 0
 
-            type_content = buffer[type_content_len: type_content_len + string_length]
+            type_content = buffer[type_content_len : type_content_len + string_length]
             return (
                 BulkString(type_content),
                 protocol_terminator_index
