@@ -1,3 +1,5 @@
+import time
+
 import pytest
 
 from pyredis.commands import handle_command, encode_command
@@ -41,6 +43,10 @@ data_store = DataStore()
             Array([BulkString(b"set"), BulkString(b"key"), BulkString(b"value")]),
             SimpleString("OK"),
         ),
+        (
+            Array([BulkString(b'set'), BulkString(b'key'), BulkString(b'value'), BulkString(b'ex'), BulkString(b'60')]),
+            SimpleString("OK"),
+        ),
         # Get Tests
         (
             Array([BulkString(b"get")]),
@@ -52,6 +58,20 @@ data_store = DataStore()
         ),
         (Array([BulkString(b"get"), BulkString(b"invalid")]), BulkString(None)),
     ],
+    ids=[
+        "ECHO",
+        "ECHO hello",
+        "ECHO hello world",
+        "PING",
+        "PING hello",
+        "SET",
+        "SET key",
+        "SET key value",
+        "SET key value EX 60",
+        "GET",
+        "GET key",
+        "GET invalid"
+    ]
 )
 def test_handle_command(command, expected):
     result = handle_command(command, data_store)
@@ -74,3 +94,26 @@ def test_handle_command(command, expected):
 def test_encode_command(command, expected):
     encoded_command = encode_command(command)
     assert encoded_command == expected
+
+
+def test_get_with_expiry():
+    datastore = DataStore()
+    key = "key"
+    value = "value"
+    px = 100
+
+    command = Array([
+        BulkString(b"set"),
+        BulkString(f"{key}".encode()),
+        BulkString(f"{value}".encode()),
+        BulkString(b"px"),
+        BulkString(f"{px}".encode())
+    ])
+
+    result = handle_command(command, datastore)
+    assert result == SimpleString("OK")
+    time.sleep((px + 100) / 1000)
+    command = Array([BulkString(b"get"), BulkString(f"{key}".encode())])
+    result = handle_command(command, datastore)
+    assert result == BulkString(None)
+

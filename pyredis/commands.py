@@ -1,4 +1,6 @@
-from pyredis.datastore import DataStore
+import time
+
+from pyredis.datastore import DataStore, CacheEntry
 from pyredis.resp_types import SimpleString, BulkString, Error, Array
 
 
@@ -16,11 +18,27 @@ def handle_command(command: Array, datastore: DataStore):
                 return BulkString(command_args[0].data)
             return Error("ERR wrong number of arguments for 'echo' command")
         case "SET":
-            if len(command_args) != 2:
+            if len(command_args) < 2:
                 return Error("ERR wrong number of arguments for 'set' command")
             key = command_args[0].data.decode()
             value = command_args[1].data.decode()
             datastore[key] = value
+            if len(command_args) == 4:
+                option = command_args[2].data.decode()
+                option_value = command_args[3].data.decode()
+                match option.upper():
+                    case "EX":
+                        datastore.set_with_expiry(
+                            key=key,
+                            value=value,
+                            expiry=float(option_value)
+                        )
+                    case "PX":
+                        datastore.set_with_expiry(
+                            key=key,
+                            value=value,
+                            expiry=float(option_value) / 1000
+                        )
             return SimpleString("OK")
         case "GET":
             if len(command_args) != 1:

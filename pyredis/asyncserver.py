@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 from pyredis.commands import handle_command
 from pyredis.datastore import DataStore
@@ -9,21 +10,22 @@ _DATASTORE = DataStore()
 
 class RedisServerProtocol(asyncio.Protocol):
     def __init__(self):
-        self.transport = None
-        self.buffer = bytearray()
+        self._transport = None
+        self._buffer = bytearray()
+        self._logger = logging.getLogger(__name__)
 
     def connection_made(self, transport):
-        self.transport = transport
+        self._transport = transport
 
     def data_received(self, data):
         if not data:
-            self.transport.close()
+            self._transport.close()
+        self._logger.info(data)
+        self._buffer.extend(data)
 
-        self.buffer.extend(data)
-
-        command, size = parse(self.buffer)
-
+        command, size = parse(self._buffer)
+        self._logger.info(command)
         if command:
-            self.buffer = self.buffer[size:]
+            self._buffer = self._buffer[size:]
             result = handle_command(command, _DATASTORE)
-            self.transport.write(result.resp_encode())
+            self._transport.write(result.resp_encode())
