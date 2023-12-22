@@ -18,9 +18,14 @@ def handle_command(command: Array, datastore: DataStore):
         case "SET":
             if len(command_args) < 2:
                 return Error("ERR wrong number of arguments for 'set' command")
+
             key = command_args[0].data.decode()
             value = command_args[1].data.decode()
-            datastore[key] = value
+
+            if len(command_args) == 2:
+                datastore[key] = value
+                return SimpleString("OK")
+
             if len(command_args) == 4:
                 option = command_args[2].data.decode()
                 try:
@@ -33,11 +38,14 @@ def handle_command(command: Array, datastore: DataStore):
                         datastore.set_with_expiry(
                             key=key, value=value, expiry=option_value
                         )
+                        return SimpleString("OK")
                     case "PX":
                         datastore.set_with_expiry(
                             key=key, value=value, expiry=option_value / 1000
                         )
-            return SimpleString("OK")
+                        return SimpleString("OK")
+
+            return Error("ERR syntax error")
         case "GET":
             if len(command_args) != 1:
                 return Error("ERR wrong number of arguments for 'get' command")

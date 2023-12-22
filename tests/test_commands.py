@@ -39,6 +39,17 @@ data_store = DataStore()
             Array([BulkString(b"set"), BulkString(b"key")]),
             Error("ERR wrong number of arguments for 'set' command"),
         ),
+(
+            Array(
+                [
+                    BulkString(b"set"),
+                    BulkString(b"key"),
+                    BulkString(b"value"),
+                    BulkString(b"ex"),
+                ]
+            ),
+            Error("ERR syntax error"),
+        ),
         (
             Array([BulkString(b"set"), BulkString(b"key"), BulkString(b"value")]),
             SimpleString("OK"),
@@ -87,6 +98,7 @@ data_store = DataStore()
         "SET",
         "SET key",
         "SET key value",
+        "SET key value EX",
         "SET key value EX 60",
         "SET key value EX invalid_integer",
         "GET",
