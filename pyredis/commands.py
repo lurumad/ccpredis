@@ -1,6 +1,4 @@
-import time
-
-from pyredis.datastore import DataStore, CacheEntry
+from pyredis.datastore import DataStore
 from pyredis.resp_types import SimpleString, BulkString, Error, Array
 
 
