@@ -55,6 +55,18 @@ data_store = DataStore()
             ),
             SimpleString("OK"),
         ),
+        (
+            Array(
+                [
+                    BulkString(b"set"),
+                    BulkString(b"key"),
+                    BulkString(b"value"),
+                    BulkString(b"ex"),
+                    BulkString(b"a"),
+                ]
+            ),
+            Error("ERR value is not an integer or out of range"),
+        ),
         # Get Tests
         (
             Array([BulkString(b"get")]),
@@ -76,6 +88,7 @@ data_store = DataStore()
         "SET key",
         "SET key value",
         "SET key value EX 60",
+        "SET key value EX invalid_integer",
         "GET",
         "GET key",
         "GET invalid",

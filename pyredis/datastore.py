@@ -31,7 +31,7 @@ class DataStore:
         with self._lock:
             self._data[key] = CacheEntry(value=value)
 
-    def set_with_expiry(self, key: any, value: any, expiry: int) -> None:
+    def set_with_expiry(self, key: any, value: any, expiry: float) -> None:
         with self._lock:
             calculated_expiry = time_ns() + self._to_nanoseconds(expiry)
             self._data[key] = CacheEntry(value=value, expiry=calculated_expiry)

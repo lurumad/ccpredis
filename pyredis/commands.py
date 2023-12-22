@@ -23,15 +23,19 @@ def handle_command(command: Array, datastore: DataStore):
             datastore[key] = value
             if len(command_args) == 4:
                 option = command_args[2].data.decode()
-                option_value = command_args[3].data.decode()
+                try:
+                    option_value = float(command_args[3].data.decode())
+                except ValueError:
+                    return Error("ERR value is not an integer or out of range")
+
                 match option.upper():
                     case "EX":
                         datastore.set_with_expiry(
-                            key=key, value=value, expiry=float(option_value)
+                            key=key, value=value, expiry=option_value
                         )
                     case "PX":
                         datastore.set_with_expiry(
-                            key=key, value=value, expiry=float(option_value) / 1000
+                            key=key, value=value, expiry=option_value / 1000
                         )
             return SimpleString("OK")
         case "GET":
