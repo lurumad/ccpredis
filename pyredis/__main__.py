@@ -1,4 +1,5 @@
 import asyncio
+import threading
 
 import typer
 import logging
@@ -10,10 +11,9 @@ from pyredis.server import Server
 REDIS_DEFAULT_PORT = 6379
 REDIS_DEFAULT_HOST = "127.0.0.1"
 logging.basicConfig(level=logging.INFO)
-datastore = DataStore()
 
 
-async def cache_monitor():
+async def cache_monitor(datastore: DataStore):
     while True:
         datastore.remove_expired_keys()
         await asyncio.sleep(0.1)
@@ -30,6 +30,10 @@ def main_sync(host=None, port=None):
 
     print(f"Starting PyRedis on Port: {port}")
 
+    datastore = DataStore()
+    thread = threading.Thread(target=cache_monitor, args=(datastore,))
+    thread.start()
+
     server = Server(host, port)
     server.run()
 
@@ -42,8 +46,9 @@ async def main(port=None):
 
     logging.getLogger(__name__).info(f"Starting PyRedis on port {port}")
 
+    datastore = DataStore()
     loop = asyncio.get_running_loop()
-    loop.create_task(cache_monitor())
+    loop.create_task(cache_monitor(datastore))
 
     server = await loop.create_server(
         lambda: RedisServerProtocol(datastore), REDIS_DEFAULT_HOST, port
