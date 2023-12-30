@@ -159,9 +159,11 @@ def test_get_command(command, expected):
     [
         # EXISTS
         (Array([BulkString(b"exists"), BulkString(b"key")]), Integer(1)),
+        (Array([BulkString(b"exists"), BulkString(b"nosuchkey")]), Integer(0)),
     ],
     ids=[
         "EXISTS key",
+        "EXISTS nosuchkey"
     ],
 )
 def test_exists_command(command, expected):
