@@ -20,8 +20,15 @@ def handle_command(command: Array, datastore: DataStore):
             return handle_get(command_args, datastore)
         case "EXISTS":
             return handle_exists(command_args, datastore)
+        case "DEL":
+            return handle_del(command_args, datastore)
 
     return handle_unknown(command, command_args)
+
+
+def handle_del(command_args, datastore):
+    if len(command_args) < 1:
+        return Error("ERR wrong number of arguments for 'del' command")
 
 
 def handle_exists(command_args, datastore):

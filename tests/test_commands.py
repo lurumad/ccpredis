@@ -186,6 +186,33 @@ def test_exists_command(command, expected):
     assert result == expected
 
 
+@pytest.mark.parametrize(
+    "command, expected",
+    [
+        # EXISTS
+        (Array([BulkString(b"del")]), Error("ERR wrong number of arguments for 'del' command")),
+    ],
+    ids=["DEL"],
+)
+def test_del_command(command, expected):
+    datastore = DataStore()
+
+    for i in range(1, 3):
+        set_command = Array(
+            [
+                BulkString(b"set"),
+                BulkString(f"key{i}".encode()),
+                BulkString("value".encode()),
+            ]
+        )
+
+        result = handle_command(set_command, datastore)
+        assert result == SimpleString("OK")
+
+    result = handle_command(command, datastore)
+    assert result == expected
+
+
 def test_get_with_expiry():
     datastore = DataStore()
     key = "key"
