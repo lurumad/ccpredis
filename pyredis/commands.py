@@ -1,5 +1,5 @@
 from pyredis.datastore import DataStore
-from pyredis.resp_datatypes import SimpleString, BulkString, Error, Array
+from pyredis.resp_datatypes import SimpleString, BulkString, Error, Array, Integer
 
 
 def handle_command(command: Array, datastore: DataStore):
@@ -13,8 +13,22 @@ def handle_command(command: Array, datastore: DataStore):
             return handle_set(command_args, datastore)
         case "GET":
             return handle_get(command_args, datastore)
+        case "EXISTS":
+            return handle_exists(command_args, datastore)
 
     return handle_unknown(command, command_args)
+
+
+def handle_exists(command_args, datastore):
+    if len(command_args) != 1:
+        return Error("ERR wrong number of arguments for 'exists' command")
+
+    try:
+        key = command_args[0].data.decode()
+        datastore[key]
+        return Integer(1)
+    except KeyError:
+        return Integer(0)
 
 
 def handle_unknown(command, command_args):
@@ -52,9 +66,7 @@ def handle_set(command_args, datastore):
 
         match option.upper():
             case "EX":
-                datastore.set_with_expiry(
-                    key=key, value=value, expiry=option_value
-                )
+                datastore.set_with_expiry(key=key, value=value, expiry=option_value)
                 return SimpleString("OK")
             case "PX":
                 datastore.set_with_expiry(

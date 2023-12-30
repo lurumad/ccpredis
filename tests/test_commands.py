@@ -8,7 +8,7 @@ from pyredis.resp_datatypes import (
     SimpleString,
     Error,
     BulkString,
-    Array,
+    Array, Integer,
 )
 
 data_store = DataStore()
@@ -17,7 +17,7 @@ data_store = DataStore()
 @pytest.mark.parametrize(
     "command, expected",
     [
-        # Echo Tests
+        # ECHO
         (
             Array([BulkString(b"ECHO")]),
             Error("ERR wrong number of arguments for 'echo' command"),
@@ -27,10 +27,10 @@ data_store = DataStore()
             Array([BulkString(b"echo"), BulkString(b"Hello"), BulkString(b"World")]),
             Error("ERR wrong number of arguments for 'echo' command"),
         ),
-        # Ping Tests
+        # PING
         (Array([BulkString(b"ping")]), SimpleString("PONG")),
         (Array([BulkString(b"ping"), BulkString(b"Hello")]), BulkString(b"Hello")),
-        # Set Tests
+        # SET
         (
             Array([BulkString(b"set")]),
             Error("ERR wrong number of arguments for 'set' command"),
@@ -78,7 +78,7 @@ data_store = DataStore()
             ),
             Error("ERR value is not an integer or out of range"),
         ),
-        # Get Tests
+        # GET
         (
             Array([BulkString(b"get")]),
             Error("ERR wrong number of arguments for 'get' command"),
@@ -88,6 +88,8 @@ data_store = DataStore()
             BulkString(b"value"),
         ),
         (Array([BulkString(b"get"), BulkString(b"invalid")]), BulkString(None)),
+        # EXISTS
+        (Array([BulkString(b"exists"), BulkString(b"key")]), Integer(1)),
     ],
     ids=[
         "ECHO",
@@ -104,6 +106,7 @@ data_store = DataStore()
         "GET",
         "GET key",
         "GET invalid",
+        "EXISTS key",
     ],
 )
 def test_handle_command(command, expected):
