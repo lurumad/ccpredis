@@ -26,9 +26,21 @@ def handle_command(command: Array, datastore: DataStore):
     return handle_unknown(command, command_args)
 
 
-def handle_del(command_args, datastore):
+def handle_del(command_args, datastore: DataStore):
     if len(command_args) < 1:
         return Error("ERR wrong number of arguments for 'del' command")
+
+    count = 0
+    try:
+        for command_arg in command_args:
+            key = command_arg.data.decode()
+            datastore.remove(key)
+            count += 1
+    except KeyError as e:
+        logger.debug(f"{e.args[0]} does not exists")
+        pass
+
+    return Integer(count)
 
 
 def handle_exists(command_args, datastore):

@@ -70,3 +70,6 @@ class DataStore:
     @staticmethod
     def _to_nanoseconds(seconds):
         return seconds * 10**9
+
+    def remove(self, key):
+        del self._data[key]

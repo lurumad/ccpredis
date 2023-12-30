@@ -191,8 +191,11 @@ def test_exists_command(command, expected):
     [
         # EXISTS
         (Array([BulkString(b"del")]), Error("ERR wrong number of arguments for 'del' command")),
+        (Array([BulkString(b"del"), BulkString(b"key1")]), Integer(1)),
+        (Array([BulkString(b"del"), BulkString(b"key1"), BulkString(b"key2")]), Integer(2)),
+        (Array([BulkString(b"del"), BulkString(b"nosuchkey")]), Integer(0)),
     ],
-    ids=["DEL"],
+    ids=["DEL", "DEL key1", "DEL key1 key 2", "DEL nosuchkey"],
 )
 def test_del_command(command, expected):
     datastore = DataStore()
