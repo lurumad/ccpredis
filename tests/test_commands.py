@@ -158,23 +158,24 @@ def test_get_command(command, expected):
     "command, expected",
     [
         # EXISTS
-        (Array([BulkString(b"exists"), BulkString(b"key")]), Integer(1)),
+        (Array([BulkString(b"exists"), BulkString(b"key1")]), Integer(1)),
         (Array([BulkString(b"exists"), BulkString(b"nosuchkey")]), Integer(0)),
+        (
+            Array([BulkString(b"exists"), BulkString(b"key1"), BulkString(b"key2")]),
+            Integer(2),
+        ),
     ],
-    ids=[
-        "EXISTS key",
-        "EXISTS nosuchkey"
-    ],
+    ids=["EXISTS key", "EXISTS nosuchkey", "EXISTS key1 key2"],
 )
 def test_exists_command(command, expected):
     datastore = DataStore()
 
-    for i in range(1, 2):
+    for i in range(1, 3):
         set_command = Array(
             [
                 BulkString(b"set"),
-                BulkString("key".encode()),
-                BulkString("value{i}".encode()),
+                BulkString(f"key{i}".encode()),
+                BulkString("value".encode()),
             ]
         )
 

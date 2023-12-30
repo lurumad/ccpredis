@@ -1,5 +1,10 @@
+import logging
+
 from pyredis.datastore import DataStore
 from pyredis.resp_datatypes import SimpleString, BulkString, Error, Array, Integer
+
+
+logger = logging.getLogger(__name__)
 
 
 def handle_command(command: Array, datastore: DataStore):
@@ -20,15 +25,19 @@ def handle_command(command: Array, datastore: DataStore):
 
 
 def handle_exists(command_args, datastore):
-    if len(command_args) != 1:
+    if len(command_args) < 1:
         return Error("ERR wrong number of arguments for 'exists' command")
-
+    count = 0
     try:
-        key = command_args[0].data.decode()
-        datastore[key]
-        return Integer(1)
-    except KeyError:
-        return Integer(0)
+        for command_arg in command_args:
+            key = command_arg.data.decode()
+            _ = datastore[key]
+            count += 1
+    except KeyError as e:
+        logger.debug(f"{e.args[0]} does not exists")
+        pass
+
+    return Integer(count)
 
 
 def handle_unknown(command, command_args):
