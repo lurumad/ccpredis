@@ -36,7 +36,7 @@ def handle_incr(command_args, datastore: DataStore):
         key = command_args[0].data.decode()
         result = datastore.increment(key)
         return Integer(result)
-    except TypeError:
+    except ValueError:
         return Error("ERR value is not an integer or out of range")
 
 
@@ -102,17 +102,17 @@ def handle_set(command_args, datastore):
     if len(command_args) == 4:
         option = command_args[2].data.decode()
         try:
-            option_value = float(command_args[3].data.decode())
+            expiry = int(command_args[3].data.decode())
         except ValueError:
             return Error("ERR value is not an integer or out of range")
 
         match option.upper():
             case "EX":
-                datastore.set_with_expiry(key=key, value=value, expiry=option_value)
+                datastore.set_with_expiry(key=key, value=value, expiry=expiry)
                 return SimpleString("OK")
             case "PX":
                 datastore.set_with_expiry(
-                    key=key, value=value, expiry=option_value / 1000
+                    key=key, value=value, expiry=expiry / 1000
                 )
                 return SimpleString("OK")
     return Error("ERR syntax error")

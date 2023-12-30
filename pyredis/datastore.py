@@ -31,7 +31,7 @@ class DataStore:
         with self._lock:
             self._data[key] = CacheEntry(value=value)
 
-    def set_with_expiry(self, key: any, value: any, expiry: float) -> None:
+    def set_with_expiry(self, key: any, value: any, expiry: int) -> None:
         with self._lock:
             calculated_expiry = time_ns() + self._to_nanoseconds(expiry)
             self._data[key] = CacheEntry(value=value, expiry=calculated_expiry)
@@ -76,11 +76,10 @@ class DataStore:
 
     def increment(self, key):
         if key not in self._data:
-            self._data[key] = 0
+            self.__setitem__(key, 0)
 
-        with self._lock:
-            value = int(self._data[key])
-            value += 1
-            self._data[key] = value
-            return value
+        value = int(self.__getitem__(key))
+        value += 1
+        self.__setitem__(key, value)
+        return value
 
