@@ -29,8 +29,15 @@ def handle_command(command: Array, datastore: DataStore):
 
 
 def handle_incr(command_args, datastore: DataStore):
-    if len(command_args) < 1:
+    if len(command_args) != 1:
         return Error("ERR wrong number of arguments for 'incr' command")
+
+    try:
+        key = command_args[0].data.decode()
+        result = datastore.increment(key)
+        return Integer(result)
+    except TypeError:
+        return Error("ERR value is not an integer or out of range")
 
 
 def handle_del(command_args, datastore: DataStore):

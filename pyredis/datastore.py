@@ -73,3 +73,14 @@ class DataStore:
 
     def remove(self, key):
         del self._data[key]
+
+    def increment(self, key):
+        if key not in self._data:
+            self._data[key] = 0
+
+        with self._lock:
+            value = int(self._data[key])
+            value += 1
+            self._data[key] = value
+            return value
+

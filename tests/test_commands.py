@@ -248,3 +248,21 @@ def test_incr_invalid_command():
     assert result == Error("ERR wrong number of arguments for 'incr' command")
 
 
+def test_incr_invalid_key():
+    datastore = DataStore()
+    command = Array([BulkString(b"set"), BulkString(b"key"), BulkString(b"value")])
+    result = handle_command(command, datastore)
+    assert result == SimpleString("OK")
+    command = Array([BulkString(b"incr"), BulkString(b"key")])
+    result = handle_command(command, datastore)
+    assert result == Error("ERR value is not an integer or out of range")
+
+
+def test_incr_command():
+    datastore = DataStore()
+    for i in range(1, 5):
+        command = Array([BulkString(b"incr"), BulkString(b"key")])
+        result = handle_command(command, datastore)
+        assert result == Integer(i)
+
+
