@@ -8,7 +8,8 @@ from pyredis.resp_datatypes import (
     SimpleString,
     Error,
     BulkString,
-    Array, Integer,
+    Array,
+    Integer,
 )
 
 data_store = DataStore()
@@ -78,18 +79,6 @@ data_store = DataStore()
             ),
             Error("ERR value is not an integer or out of range"),
         ),
-        # GET
-        (
-            Array([BulkString(b"get")]),
-            Error("ERR wrong number of arguments for 'get' command"),
-        ),
-        (
-            Array([BulkString(b"get"), BulkString(b"key")]),
-            BulkString(b"value"),
-        ),
-        (Array([BulkString(b"get"), BulkString(b"invalid")]), BulkString(None)),
-        # EXISTS
-        (Array([BulkString(b"exists"), BulkString(b"key")]), Integer(1)),
     ],
     ids=[
         "ECHO",
@@ -103,10 +92,6 @@ data_store = DataStore()
         "SET key value EX",
         "SET key value EX 60",
         "SET key value EX invalid_integer",
-        "GET",
-        "GET key",
-        "GET invalid",
-        "EXISTS key",
     ],
 )
 def test_handle_command(command, expected):
@@ -130,6 +115,72 @@ def test_handle_command(command, expected):
 def test_encode_command(command, expected):
     encoded_command = encode_command(command)
     assert encoded_command == expected
+
+
+@pytest.mark.parametrize(
+    "command, expected",
+    [
+        # GET
+        (
+            Array([BulkString(b"get")]),
+            Error("ERR wrong number of arguments for 'get' command"),
+        ),
+        (
+            Array([BulkString(b"get"), BulkString(b"key")]),
+            BulkString(b"value"),
+        ),
+        (Array([BulkString(b"get"), BulkString(b"invalid")]), BulkString(None)),
+    ],
+    ids=[
+        "GET",
+        "GET key",
+        "GET invalid",
+    ],
+)
+def test_get_command(command, expected):
+    datastore = DataStore()
+
+    set_command = Array(
+        [
+            BulkString(b"set"),
+            BulkString("key".encode()),
+            BulkString("value".encode()),
+        ]
+    )
+
+    result = handle_command(set_command, datastore)
+    assert result == SimpleString("OK")
+    result = handle_command(command, datastore)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "command, expected",
+    [
+        # EXISTS
+        (Array([BulkString(b"exists"), BulkString(b"key")]), Integer(1)),
+    ],
+    ids=[
+        "EXISTS key",
+    ],
+)
+def test_exists_command(command, expected):
+    datastore = DataStore()
+
+    for i in range(1, 2):
+        set_command = Array(
+            [
+                BulkString(b"set"),
+                BulkString("key".encode()),
+                BulkString("value{i}".encode()),
+            ]
+        )
+
+        result = handle_command(set_command, datastore)
+        assert result == SimpleString("OK")
+
+    result = handle_command(command, datastore)
+    assert result == expected
 
 
 def test_get_with_expiry():
