@@ -75,11 +75,11 @@ class DataStore:
         del self._data[key]
 
     def increment(self, key):
-        if key not in self._data:
-            self.__setitem__(key, 0)
-
-        value = int(self.__getitem__(key))
-        value += 1
-        self.__setitem__(key, value)
-        return value
+        with self._lock:
+            if key not in self._data:
+                self._data[key] = CacheEntry(0)
+            value = int(self._data[key].value)
+            value += 1
+            self._data[key] = CacheEntry(value)
+            return value
 
