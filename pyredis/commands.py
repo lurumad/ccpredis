@@ -1,5 +1,5 @@
 from pyredis.datastore import DataStore
-from pyredis.resp_types import SimpleString, BulkString, Error, Array
+from pyredis.resp_datatypes import SimpleString, BulkString, Error, Array
 
 
 def handle_command(command: Array, datastore: DataStore):

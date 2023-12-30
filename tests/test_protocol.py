@@ -2,7 +2,7 @@ import pytest
 
 from pyredis import protocol
 from pyredis.protocol import encode_message
-from pyredis.resp_types import (
+from pyredis.resp_datatypes import (
     SimpleString,
     Error,
     Integer,

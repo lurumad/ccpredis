@@ -4,7 +4,7 @@ from typing_extensions import Annotated
 
 from pyredis.protocol import encode_message, parse
 from pyredis.commands import encode_command
-from pyredis.resp_types import Array
+from pyredis.resp_datatypes import Array
 
 DEFAULT_PORT = 6379
 DEFAULT_SERVER = "127.0.0.1"

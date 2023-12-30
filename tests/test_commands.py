@@ -4,7 +4,7 @@ import pytest
 
 from pyredis.commands import handle_command, encode_command
 from pyredis.datastore import DataStore
-from pyredis.resp_types import (
+from pyredis.resp_datatypes import (
     SimpleString,
     Error,
     BulkString,
@@ -39,7 +39,7 @@ data_store = DataStore()
             Array([BulkString(b"set"), BulkString(b"key")]),
             Error("ERR wrong number of arguments for 'set' command"),
         ),
-(
+        (
             Array(
                 [
                     BulkString(b"set"),
