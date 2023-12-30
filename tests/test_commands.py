@@ -239,3 +239,12 @@ def test_get_with_expiry():
     command = Array([BulkString(b"get"), BulkString(f"{key}".encode())])
     result = handle_command(command, datastore)
     assert result == BulkString(None)
+
+
+def test_incr_invalid_command():
+    datastore = DataStore()
+    command = Array([BulkString(b"incr")])
+    result = handle_command(command, datastore)
+    assert result == Error("ERR wrong number of arguments for 'incr' command")
+
+

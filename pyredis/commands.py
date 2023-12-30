@@ -22,8 +22,15 @@ def handle_command(command: Array, datastore: DataStore):
             return handle_exists(command_args, datastore)
         case "DEL":
             return handle_del(command_args, datastore)
+        case "INCR":
+            return handle_incr(command_args, datastore)
 
     return handle_unknown(command, command_args)
+
+
+def handle_incr(command_args, datastore: DataStore):
+    if len(command_args) < 1:
+        return Error("ERR wrong number of arguments for 'incr' command")
 
 
 def handle_del(command_args, datastore: DataStore):
