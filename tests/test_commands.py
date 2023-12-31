@@ -158,7 +158,10 @@ def test_get_command(command, expected):
     "command, expected",
     [
         # EXISTS
-        (Array([BulkString(b"exists")]), Error("ERR wrong number of arguments for 'exists' command")),
+        (
+            Array([BulkString(b"exists")]),
+            Error("ERR wrong number of arguments for 'exists' command"),
+        ),
         (Array([BulkString(b"exists"), BulkString(b"key1")]), Integer(1)),
         (Array([BulkString(b"exists"), BulkString(b"nosuchkey")]), Integer(0)),
         (
@@ -191,9 +194,15 @@ def test_exists_command(command, expected):
     "command, expected",
     [
         # EXISTS
-        (Array([BulkString(b"del")]), Error("ERR wrong number of arguments for 'del' command")),
+        (
+            Array([BulkString(b"del")]),
+            Error("ERR wrong number of arguments for 'del' command"),
+        ),
         (Array([BulkString(b"del"), BulkString(b"key1")]), Integer(1)),
-        (Array([BulkString(b"del"), BulkString(b"key1"), BulkString(b"key2")]), Integer(2)),
+        (
+            Array([BulkString(b"del"), BulkString(b"key1"), BulkString(b"key2")]),
+            Integer(2),
+        ),
         (Array([BulkString(b"del"), BulkString(b"nosuchkey")]), Integer(0)),
     ],
     ids=["DEL", "DEL key1", "DEL key1 key 2", "DEL nosuchkey"],
@@ -288,4 +297,152 @@ def test_decr_command():
     for i in range(1, 5):
         command = Array([BulkString(b"decr"), BulkString(b"key")])
         result = handle_command(command, datastore)
-        assert result == Integer(i*-1)
+        assert result == Integer(i * -1)
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        Array([BulkString(b"lpush")]),
+        Array([BulkString(b"lpush"), BulkString(b"key")]),
+    ],
+    ids=["LPUSH", "LPUSH key"],
+)
+def test_lpush_invalid_command(command):
+    datastore = DataStore()
+    result = handle_command(command, datastore)
+    assert result == Error("ERR wrong number of arguments for 'lpush' command")
+
+
+def test_lpush_invalid_key():
+    datastore = DataStore()
+    command = Array([BulkString(b"set"), BulkString(b"key"), BulkString(b"value")])
+    result = handle_command(command, datastore)
+    assert result == SimpleString("OK")
+    command = Array([BulkString(b"lpush"), BulkString(b"key"), BulkString(b"value")])
+    result = handle_command(command, datastore)
+    assert result == Error(
+        "WRONGTYPE Operation against a key holding the wrong kind of value"
+    )
+
+
+def test_lpush_command():
+    datastore = DataStore()
+    command = Array(
+        [
+            BulkString(b"lpush"),
+            BulkString(b"mylist"),
+            BulkString(b"world"),
+            BulkString(b"hello"),
+        ]
+    )
+    result = handle_command(command, datastore)
+    assert result == Integer(2)
+
+
+@pytest.mark.parametrize(
+    "command, expected",
+    [
+        (
+            Array([BulkString(b"lrange")]),
+            Error("ERR wrong number of arguments for 'lrange' command"),
+        ),
+        (
+            Array([BulkString(b"lrange"), BulkString(b"key")]),
+            Error("ERR wrong number of arguments for 'lrange' command"),
+        ),
+        (
+            Array(
+                [
+                    BulkString(b"lrange"),
+                    BulkString(b"key"),
+                    BulkString(b"a"),
+                    BulkString(b"-1"),
+                ]
+            ),
+            Error("ERR value is not an integer or out of range"),
+        ),
+        (
+            Array(
+                [
+                    BulkString(b"lrange"),
+                    BulkString(b"key"),
+                    BulkString(b"0"),
+                    BulkString(b"b"),
+                ]
+            ),
+            Error("ERR value is not an integer or out of range"),
+        ),
+    ],
+    ids=["LRANGE", "LRANGE key", "LRANGE key a -1", "LRANGE key 0 b"],
+)
+def test_lrange_invalid_command(command, expected):
+    datastore = DataStore()
+    result = handle_command(command, datastore)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "command, expected",
+    [
+        (
+            Array(
+                [
+                    BulkString(b"lrange"),
+                    BulkString(b"myList"),
+                    BulkString(b"0"),
+                    BulkString(b"0"),
+                ]
+            ),
+            Array([BulkString(b"three")]),
+        ),
+        (
+            Array(
+                [
+                    BulkString(b"lrange"),
+                    BulkString(b"myList"),
+                    BulkString(b"-3"),
+                    BulkString(b"2"),
+                ]
+            ),
+            Array([BulkString(b"three"), BulkString(b"two"), BulkString(b"one")]),
+        ),
+        (
+            Array(
+                [
+                    BulkString(b"lrange"),
+                    BulkString(b"myList"),
+                    BulkString(b"-100"),
+                    BulkString(b"100"),
+                ]
+            ),
+            Array([BulkString(b"three"), BulkString(b"two"), BulkString(b"one")]),
+        ),
+        (
+            Array(
+                [
+                    BulkString(b"lrange"),
+                    BulkString(b"myList"),
+                    BulkString(b"5"),
+                    BulkString(b"10"),
+                ]
+            ),
+            Array([]),
+        ),
+    ],
+    ids=["LRANGE myList 0 0", "LRANGE myList -3 2", "LRANGE myList -100 100", "LRANGE myList 5 10"],
+)
+def test_lrange_command(command, expected):
+    datastore = DataStore()
+    lpush = Array(
+        [
+            BulkString(b"lpush"),
+            BulkString(b"myList"),
+            BulkString(b"one"),
+            BulkString(b"two"),
+            BulkString(b"three"),
+        ]
+    )
+    handle_command(lpush, datastore)
+    result = handle_command(command, datastore)
+    assert result == expected

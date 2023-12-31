@@ -26,8 +26,42 @@ def handle_command(command: Array, datastore: DataStore):
             return handle_incr(command_args, datastore)
         case "DECR":
             return handle_decr(command_args, datastore)
+        case "LPUSH":
+            return handle_lpush(command_args, datastore)
+        case "LRANGE":
+            return handle_lrange(command_args, datastore)
 
     return handle_unknown(command, command_args)
+
+
+def handle_lrange(command_args, datastore: DataStore):
+    if len(command_args) < 3:
+        return Error("ERR wrong number of arguments for 'lrange' command")
+    try:
+        key = command_args[0].data.decode()
+        start = int(command_args[1].data.decode())
+        stop = int(command_args[2].data.decode()) + 1
+        values = datastore[key]
+        return Array([BulkString(value.encode()) for value in values[start:stop]])
+    except ValueError:
+        return Error("ERR value is not an integer or out of range")
+    except KeyError:
+        return Array([])
+
+
+def handle_lpush(command_args, datastore: DataStore):
+    if len(command_args) < 2:
+        return Error("ERR wrong number of arguments for 'lpush' command")
+    count = 0
+    try:
+        key = command_args[0].data.decode()
+        for value in command_args[1:]:
+            count = datastore.leftpush(key, value.data.decode())
+    except ValueError:
+        return Error(
+            "WRONGTYPE Operation against a key holding the wrong kind of value"
+        )
+    return Integer(count)
 
 
 def handle_decr(command_args, datastore: DataStore):
@@ -63,8 +97,6 @@ def handle_del(command_args, datastore: DataStore):
             count += 1
     except KeyError as e:
         logger.debug(f"{e.args[0]} does not exists")
-        pass
-
     return Integer(count)
 
 
@@ -122,9 +154,7 @@ def handle_set(command_args, datastore):
                 datastore.set_with_expiry(key=key, value=value, expiry=expiry)
                 return SimpleString("OK")
             case "PX":
-                datastore.set_with_expiry(
-                    key=key, value=value, expiry=expiry / 1000
-                )
+                datastore.set_with_expiry(key=key, value=value, expiry=expiry / 1000)
                 return SimpleString("OK")
     return Error("ERR syntax error")
 

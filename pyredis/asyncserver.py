@@ -19,11 +19,9 @@ class RedisServerProtocol(asyncio.Protocol):
     def data_received(self, data):
         if not data:
             self._transport.close()
-
         self._buffer.extend(data)
-
         command, size = parse(self._buffer)
-
+        self._logger.info(f"Command received: {command}")
         if command:
             self._buffer = self._buffer[size:]
             result = handle_command(command, self._datastore)

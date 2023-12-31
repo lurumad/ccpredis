@@ -71,10 +71,10 @@ class DataStore:
     def _to_nanoseconds(seconds):
         return seconds * 10**9
 
-    def remove(self, key):
+    def remove(self, key) -> None:
         del self._data[key]
 
-    def increment(self, key):
+    def increment(self, key) -> int:
         with self._lock:
             if key not in self._data:
                 self._data[key] = CacheEntry(0)
@@ -83,7 +83,7 @@ class DataStore:
             self._data[key] = CacheEntry(value)
             return value
 
-    def decrement(self, key):
+    def decrement(self, key) -> int:
         with self._lock:
             if key not in self._data:
                 self._data[key] = CacheEntry(0)
@@ -92,3 +92,13 @@ class DataStore:
             self._data[key] = CacheEntry(value)
             return value
 
+    def leftpush(self, key, value) -> int:
+        with self._lock:
+            if key not in self._data:
+                self._data[key] = CacheEntry([])
+            if not isinstance(self._data[key].value, list):
+                raise ValueError
+            values = self._data[key].value
+            values.insert(0, value)
+            self._data[key] = CacheEntry(values)
+            return len(values)
