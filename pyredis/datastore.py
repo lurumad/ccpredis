@@ -83,3 +83,12 @@ class DataStore:
             self._data[key] = CacheEntry(value)
             return value
 
+    def decrement(self, key):
+        with self._lock:
+            if key not in self._data:
+                self._data[key] = CacheEntry(0)
+            value = int(self._data[key].value)
+            value -= 1
+            self._data[key] = CacheEntry(value)
+            return value
+

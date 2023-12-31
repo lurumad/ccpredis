@@ -24,14 +24,26 @@ def handle_command(command: Array, datastore: DataStore):
             return handle_del(command_args, datastore)
         case "INCR":
             return handle_incr(command_args, datastore)
+        case "DECR":
+            return handle_decr(command_args, datastore)
 
     return handle_unknown(command, command_args)
+
+
+def handle_decr(command_args, datastore: DataStore):
+    if len(command_args) != 1:
+        return Error("ERR wrong number of arguments for 'decr' command")
+    try:
+        key = command_args[0].data.decode()
+        result = datastore.decrement(key)
+        return Integer(result)
+    except ValueError:
+        return Error("ERR value is not an integer or out of range")
 
 
 def handle_incr(command_args, datastore: DataStore):
     if len(command_args) != 1:
         return Error("ERR wrong number of arguments for 'incr' command")
-
     try:
         key = command_args[0].data.decode()
         result = datastore.increment(key)
@@ -43,7 +55,6 @@ def handle_incr(command_args, datastore: DataStore):
 def handle_del(command_args, datastore: DataStore):
     if len(command_args) < 1:
         return Error("ERR wrong number of arguments for 'del' command")
-
     count = 0
     try:
         for command_arg in command_args:
