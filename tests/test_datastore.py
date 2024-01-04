@@ -41,6 +41,8 @@ def test_expire_actively():
     time.sleep(0.15)
     datastore.remove_expired_keys()
 
+    assert "key1" not in datastore
+    assert "key2" not in datastore
     assert datastore.dbsize() == 2
 
 

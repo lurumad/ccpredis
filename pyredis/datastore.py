@@ -59,13 +59,12 @@ class DataStore:
     def _count_expired(self, keys):
         count_expired = 0
         for key in keys:
-            try:
-                with self._lock:
-                    if self._data[key].expired():
-                        del self._data[key]
-                        count_expired += 1
-            except KeyError:
-                pass
+            with self._lock:
+                if key not in self._data:
+                    pass
+                if self._data[key].expired():
+                    del self._data[key]
+                    count_expired += 1
         return count_expired
 
     def _remove_expired_key(self, key, entry):
