@@ -28,110 +28,26 @@ def handle_command(command: Array, datastore: DataStore):
             return handle_decr(command_args, datastore)
         case "LPUSH":
             return handle_lpush(command_args, datastore)
+        case "RPUSH":
+            return handle_rpush(command_args, datastore)
         case "LRANGE":
             return handle_lrange(command_args, datastore)
 
     return handle_unknown(command, command_args)
 
 
-def handle_lrange(command_args, datastore: DataStore):
-    if len(command_args) < 3:
-        return Error("ERR wrong number of arguments for 'lrange' command")
-    try:
-        key = command_args[0].data.decode()
-        start = int(command_args[1].data.decode())
-        stop = int(command_args[2].data.decode()) + 1
-        values = datastore[key]
-        return Array([BulkString(value.encode()) for value in values[start:stop]])
-    except ValueError:
-        return Error("ERR value is not an integer or out of range")
-    except KeyError:
-        return Array([])
+def handle_ping(command_args):
+    if len(command_args) == 0:
+        return SimpleString("PONG")
+    if len(command_args) == 1:
+        return BulkString(command_args[0].data)
+    return Error("ERR wrong number of arguments for 'ping' command")
 
 
-def handle_lpush(command_args, datastore: DataStore):
-    if len(command_args) < 2:
-        return Error("ERR wrong number of arguments for 'lpush' command")
-    count = 0
-    try:
-        key = command_args[0].data.decode()
-        for value in command_args[1:]:
-            count = datastore.append(key, value.data.decode())
-    except ValueError:
-        return Error(
-            "WRONGTYPE Operation against a key holding the wrong kind of value"
-        )
-    return Integer(count)
-
-
-def handle_decr(command_args, datastore: DataStore):
-    if len(command_args) != 1:
-        return Error("ERR wrong number of arguments for 'decr' command")
-    try:
-        key = command_args[0].data.decode()
-        result = datastore.decrement(key)
-        return Integer(result)
-    except ValueError:
-        return Error("ERR value is not an integer or out of range")
-
-
-def handle_incr(command_args, datastore: DataStore):
-    if len(command_args) != 1:
-        return Error("ERR wrong number of arguments for 'incr' command")
-    try:
-        key = command_args[0].data.decode()
-        result = datastore.increment(key)
-        return Integer(result)
-    except ValueError:
-        return Error("ERR value is not an integer or out of range")
-
-
-def handle_del(command_args, datastore: DataStore):
-    if len(command_args) < 1:
-        return Error("ERR wrong number of arguments for 'del' command")
-    count = 0
-    try:
-        for command_arg in command_args:
-            key = command_arg.data.decode()
-            del datastore[key]
-            count += 1
-    except KeyError as e:
-        logger.debug(f"{e.args[0]} does not exists")
-    return Integer(count)
-
-
-def handle_exists(command_args, datastore):
-    if len(command_args) < 1:
-        return Error("ERR wrong number of arguments for 'exists' command")
-    count = 0
-    try:
-        for command_arg in command_args:
-            key = command_arg.data.decode()
-            if key in datastore:
-                count += 1
-    except KeyError as e:
-        logger.debug(f"{e.args[0]} does not exists")
-        pass
-
-    return Integer(count)
-
-
-def handle_unknown(command, command_args):
-    args = " ".join([f"'{arg.data.decode()}'" for arg in command_args])
-    return Error(
-        f"ERR unknown command '{command.data.decode().upper()}', with args beginning with: {args}"
-    )
-
-
-def handle_get(command_args, datastore):
-    if len(command_args) != 1:
-        return Error("ERR wrong number of arguments for 'get' command")
-    try:
-        key = command_args[0].data.decode()
-        value = datastore[key]
-    except KeyError:
-        return BulkString(None)
-    return BulkString(value.encode())
+def handle_echo(command_args):
+    if len(command_args) == 1:
+        return BulkString(command_args[0].data)
+    return Error("ERR wrong number of arguments for 'echo' command")
 
 
 def handle_set(command_args, datastore):
@@ -159,18 +75,119 @@ def handle_set(command_args, datastore):
     return Error("ERR syntax error")
 
 
-def handle_echo(command_args):
-    if len(command_args) == 1:
-        return BulkString(command_args[0].data)
-    return Error("ERR wrong number of arguments for 'echo' command")
+def handle_get(command_args, datastore):
+    if len(command_args) != 1:
+        return Error("ERR wrong number of arguments for 'get' command")
+    try:
+        key = command_args[0].data.decode()
+        value = datastore[key]
+    except KeyError:
+        return BulkString(None)
+    return BulkString(value.encode())
 
 
-def handle_ping(command_args):
-    if len(command_args) == 0:
-        return SimpleString("PONG")
-    if len(command_args) == 1:
-        return BulkString(command_args[0].data)
-    return Error("ERR wrong number of arguments for 'ping' command")
+def handle_exists(command_args, datastore):
+    if len(command_args) < 1:
+        return Error("ERR wrong number of arguments for 'exists' command")
+    count = 0
+    try:
+        for command_arg in command_args:
+            key = command_arg.data.decode()
+            if key in datastore:
+                count += 1
+    except KeyError as e:
+        logger.debug(f"{e.args[0]} does not exists")
+        pass
+
+    return Integer(count)
+
+
+def handle_del(command_args, datastore: DataStore):
+    if len(command_args) < 1:
+        return Error("ERR wrong number of arguments for 'del' command")
+    count = 0
+    try:
+        for command_arg in command_args:
+            key = command_arg.data.decode()
+            del datastore[key]
+            count += 1
+    except KeyError as e:
+        logger.debug(f"{e.args[0]} does not exists")
+    return Integer(count)
+
+
+def handle_incr(command_args, datastore: DataStore):
+    if len(command_args) != 1:
+        return Error("ERR wrong number of arguments for 'incr' command")
+    try:
+        key = command_args[0].data.decode()
+        result = datastore.increment(key)
+        return Integer(result)
+    except ValueError:
+        return Error("ERR value is not an integer or out of range")
+
+
+def handle_decr(command_args, datastore: DataStore):
+    if len(command_args) != 1:
+        return Error("ERR wrong number of arguments for 'decr' command")
+    try:
+        key = command_args[0].data.decode()
+        result = datastore.decrement(key)
+        return Integer(result)
+    except ValueError:
+        return Error("ERR value is not an integer or out of range")
+
+
+def handle_lpush(command_args, datastore: DataStore):
+    if len(command_args) < 2:
+        return Error("ERR wrong number of arguments for 'lpush' command")
+    count = 0
+    try:
+        key = command_args[0].data.decode()
+        for value in command_args[1:]:
+            count = datastore.prepend(key, value.data.decode())
+    except TypeError:
+        return Error(
+            "WRONGTYPE Operation against a key holding the wrong kind of value"
+        )
+    return Integer(count)
+
+
+def handle_rpush(command_args, datastore: DataStore):
+    if len(command_args) < 2:
+        return Error("ERR wrong number of arguments for 'rpush' command")
+    count = 0
+    try:
+        key = command_args[0].data.decode()
+        for value in command_args[1:]:
+            count = datastore.append(key, value.data.decode())
+    except TypeError:
+        return Error(
+            "WRONGTYPE Operation against a key holding the wrong kind of value"
+        )
+    return Integer(count)
+
+
+def handle_lrange(command_args, datastore: DataStore):
+    if len(command_args) < 3:
+        return Error("ERR wrong number of arguments for 'lrange' command")
+    try:
+        key = command_args[0].data.decode()
+        start = int(command_args[1].data.decode())
+        stop = int(command_args[2].data.decode()) + 1
+        values = datastore[key]
+        return Array([BulkString(value.encode()) for value in values[start:stop]])
+    except ValueError:
+        return Error("ERR value is not an integer or out of range")
+    except KeyError:
+        return Array([])
+
+
+def handle_unknown(command, command_args):
+    args = " ".join([f"'{arg.data.decode()}'" for arg in command_args])
+    return Error(
+        f"ERR unknown command '{command.data.decode().upper()}', with args beginning with: {args}"
+    )
 
 
 def encode_command(command):

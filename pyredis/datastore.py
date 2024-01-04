@@ -94,13 +94,24 @@ class DataStore:
             self._data[key] = CacheEntry(value)
             return value
 
-    def append(self, key, value) -> int:
+    def prepend(self, key, value) -> int:
         with self._lock:
             if key not in self._data:
                 self._data[key] = CacheEntry([])
             if not isinstance(self._data[key].value, list):
-                raise ValueError
+                raise TypeError
             values = self._data[key].value
             values.insert(0, value)
+            self._data[key] = CacheEntry(values)
+            return len(values)
+
+    def append(self, key, value):
+        with self._lock:
+            if key not in self._data:
+                self._data[key] = CacheEntry([])
+            if not isinstance(self._data[key].value, list):
+                raise TypeError
+            values = self._data[key].value
+            values.append(value)
             self._data[key] = CacheEntry(values)
             return len(values)

@@ -341,6 +341,46 @@ def test_lpush_command():
 
 
 @pytest.mark.parametrize(
+    "command",
+    [
+        Array([BulkString(b"rpush")]),
+        Array([BulkString(b"rpush"), BulkString(b"key")]),
+    ],
+    ids=["RPUSH", "RPUSH key"],
+)
+def test_rpush_invalid_command(command):
+    datastore = DataStore()
+    result = handle_command(command, datastore)
+    assert result == Error("ERR wrong number of arguments for 'rpush' command")
+
+
+def test_rpush_invalid_key():
+    datastore = DataStore()
+    command = Array([BulkString(b"set"), BulkString(b"key"), BulkString(b"value")])
+    result = handle_command(command, datastore)
+    assert result == SimpleString("OK")
+    command = Array([BulkString(b"rpush"), BulkString(b"key"), BulkString(b"value")])
+    result = handle_command(command, datastore)
+    assert result == Error(
+        "WRONGTYPE Operation against a key holding the wrong kind of value"
+    )
+
+
+def test_rpush_command():
+    datastore = DataStore()
+    command = Array(
+        [
+            BulkString(b"rpush"),
+            BulkString(b"mylist"),
+            BulkString(b"hello"),
+            BulkString(b"world"),
+        ]
+    )
+    result = handle_command(command, datastore)
+    assert result == Integer(2)
+
+
+@pytest.mark.parametrize(
     "command, expected",
     [
         (
