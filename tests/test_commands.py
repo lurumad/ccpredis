@@ -477,11 +477,82 @@ def test_lrange_invalid_command(command, expected):
         "LRANGE myList 5 10",
     ],
 )
-def test_lrange_command(command, expected):
+def test_lpush_lrange_command(command, expected):
     datastore = DataStore()
     lpush = Array(
         [
             BulkString(b"lpush"),
+            BulkString(b"myList"),
+            BulkString(b"one"),
+            BulkString(b"two"),
+            BulkString(b"three"),
+        ]
+    )
+    handle_command(lpush, datastore)
+    result = handle_command(command, datastore)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "command, expected",
+    [
+        (
+            Array(
+                [
+                    BulkString(b"lrange"),
+                    BulkString(b"myList"),
+                    BulkString(b"0"),
+                    BulkString(b"0"),
+                ]
+            ),
+            Array([BulkString(b"one")]),
+        ),
+        (
+            Array(
+                [
+                    BulkString(b"lrange"),
+                    BulkString(b"myList"),
+                    BulkString(b"-3"),
+                    BulkString(b"2"),
+                ]
+            ),
+            Array([BulkString(b"one"), BulkString(b"two"), BulkString(b"three")]),
+        ),
+        (
+            Array(
+                [
+                    BulkString(b"lrange"),
+                    BulkString(b"myList"),
+                    BulkString(b"-100"),
+                    BulkString(b"100"),
+                ]
+            ),
+            Array([BulkString(b"one"), BulkString(b"two"), BulkString(b"three")]),
+        ),
+        (
+            Array(
+                [
+                    BulkString(b"lrange"),
+                    BulkString(b"myList"),
+                    BulkString(b"5"),
+                    BulkString(b"10"),
+                ]
+            ),
+            Array([]),
+        ),
+    ],
+    ids=[
+        "LRANGE myList 0 0",
+        "LRANGE myList -3 2",
+        "LRANGE myList -100 100",
+        "LRANGE myList 5 10",
+    ],
+)
+def test_rpush_lrange_command(command, expected):
+    datastore = DataStore()
+    lpush = Array(
+        [
+            BulkString(b"rpush"),
             BulkString(b"myList"),
             BulkString(b"one"),
             BulkString(b"two"),
