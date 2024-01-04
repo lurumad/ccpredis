@@ -5,6 +5,19 @@ import pytest
 from pyredis.datastore import DataStore
 
 
+def test_contains():
+    datastore = DataStore()
+    datastore["key"] = "value"
+    assert "key" in datastore
+
+
+def test_delete():
+    datastore = DataStore()
+    datastore["key"] = "value"
+    del datastore["key"]
+    assert "key" not in datastore
+
+
 def test_set_and_get_item():
     datastore = DataStore()
     datastore["key"] = "value"
@@ -16,7 +29,7 @@ def test_expire_key():
     datastore.set_with_expiry("key", "value", 0.01)
     time.sleep(0.15)
     with pytest.raises(KeyError):
-        datastore["key"]
+        _ = datastore["key"]
 
 
 def test_expire_actively():
@@ -29,3 +42,17 @@ def test_expire_actively():
     datastore.remove_expired_keys()
 
     assert datastore.dbsize() == 2
+
+
+def test_increment():
+    datastore = DataStore()
+    datastore["key"] = "1"
+    incremented = datastore.increment("key")
+    assert incremented == 2
+
+
+def test_decrement():
+    datastore = DataStore()
+    datastore["key"] = "1"
+    incremented = datastore.decrement("key")
+    assert incremented == 0

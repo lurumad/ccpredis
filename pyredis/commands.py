@@ -56,7 +56,7 @@ def handle_lpush(command_args, datastore: DataStore):
     try:
         key = command_args[0].data.decode()
         for value in command_args[1:]:
-            count = datastore.leftpush(key, value.data.decode())
+            count = datastore.append(key, value.data.decode())
     except ValueError:
         return Error(
             "WRONGTYPE Operation against a key holding the wrong kind of value"
@@ -93,7 +93,7 @@ def handle_del(command_args, datastore: DataStore):
     try:
         for command_arg in command_args:
             key = command_arg.data.decode()
-            datastore.remove(key)
+            del datastore[key]
             count += 1
     except KeyError as e:
         logger.debug(f"{e.args[0]} does not exists")
@@ -107,8 +107,8 @@ def handle_exists(command_args, datastore):
     try:
         for command_arg in command_args:
             key = command_arg.data.decode()
-            _ = datastore[key]
-            count += 1
+            if key in datastore:
+                count += 1
     except KeyError as e:
         logger.debug(f"{e.args[0]} does not exists")
         pass

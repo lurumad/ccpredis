@@ -10,7 +10,7 @@ COUNT_KEYS = 20
 @dataclass
 class CacheEntry:
     value: Any
-    expiry: int = 0
+    expiry: float = 0
 
     def expired(self):
         return self.expiry and self.expiry < int(time_ns())
@@ -31,7 +31,13 @@ class DataStore:
         with self._lock:
             self._data[key] = CacheEntry(value=value)
 
-    def set_with_expiry(self, key: any, value: any, expiry: int) -> None:
+    def __contains__(self, item):
+        return item in self._data
+
+    def __delitem__(self, key):
+        del self._data[key]
+
+    def set_with_expiry(self, key: any, value: any, expiry: float) -> None:
         with self._lock:
             calculated_expiry = time_ns() + self._to_nanoseconds(expiry)
             self._data[key] = CacheEntry(value=value, expiry=calculated_expiry)
@@ -71,9 +77,6 @@ class DataStore:
     def _to_nanoseconds(seconds):
         return seconds * 10**9
 
-    def remove(self, key) -> None:
-        del self._data[key]
-
     def increment(self, key) -> int:
         with self._lock:
             if key not in self._data:
@@ -92,7 +95,7 @@ class DataStore:
             self._data[key] = CacheEntry(value)
             return value
 
-    def leftpush(self, key, value) -> int:
+    def append(self, key, value) -> int:
         with self._lock:
             if key not in self._data:
                 self._data[key] = CacheEntry([])

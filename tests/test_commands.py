@@ -430,7 +430,12 @@ def test_lrange_invalid_command(command, expected):
             Array([]),
         ),
     ],
-    ids=["LRANGE myList 0 0", "LRANGE myList -3 2", "LRANGE myList -100 100", "LRANGE myList 5 10"],
+    ids=[
+        "LRANGE myList 0 0",
+        "LRANGE myList -3 2",
+        "LRANGE myList -100 100",
+        "LRANGE myList 5 10",
+    ],
 )
 def test_lrange_command(command, expected):
     datastore = DataStore()
