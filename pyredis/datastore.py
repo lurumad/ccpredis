@@ -1,5 +1,6 @@
 import random
 from dataclasses import dataclass
+from itertools import islice
 from threading import Lock
 from time import time_ns
 from typing import Any
@@ -115,3 +116,10 @@ class DataStore:
             values.append(value)
             self._data[key] = CacheEntry(values)
             return len(values)
+
+    def range(self, key, start, stop):
+        with self._lock:
+            item = self._data.get(key, CacheEntry([]))
+            if not isinstance(self._data[key].value, list):
+                raise TypeError
+            return item.value[start:stop]

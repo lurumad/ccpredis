@@ -3,10 +3,10 @@
 A lite version of Redis Server in Python using asyncio to support multiple concurrent connections.
 
 ```bash
-luru@Luiss-MacBook-Pro: ~/Developer/redis-server: redis-benchmark -t SET,GET -n 10000 -q
+luru@Luiss-MacBook-Pro  ~/Developer/redis-server  redis-benchmark -t set,get, -n 100000 -q
 WARNING: Could not fetch server CONFIG
-SET: 50505.05 requests per second, p50=0.807 msec
-GET: 66666.66 requests per second, p50=0.743 msec
+SET: 52742.62 requests per second, p50=0.903 msec
+GET: 56306.30 requests per second, p50=0.847 msec
 ```
 
 All the functionality supported by the server (work in progress):

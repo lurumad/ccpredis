@@ -175,8 +175,8 @@ def handle_lrange(command_args, datastore: DataStore):
         key = command_args[0].data.decode()
         start = int(command_args[1].data.decode())
         stop = int(command_args[2].data.decode()) + 1
-        values = datastore[key]
-        return Array([BulkString(value.encode()) for value in values[start:stop]])
+        values = datastore.range(key, start, stop)
+        return Array([BulkString(value.encode()) for value in values])
     except ValueError:
         return Error("ERR value is not an integer or out of range")
     except KeyError:
