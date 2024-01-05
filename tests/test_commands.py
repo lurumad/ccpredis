@@ -441,11 +441,11 @@ def test_lrange_invalid_command(command, expected):
                 [
                     BulkString(b"lrange"),
                     BulkString(b"myList"),
-                    BulkString(b"-3"),
+                    BulkString(b"-2"),
                     BulkString(b"2"),
                 ]
             ),
-            Array([BulkString(b"three"), BulkString(b"two"), BulkString(b"one")]),
+            Array([BulkString(b"two"), BulkString(b"one")]),
         ),
         (
             Array(

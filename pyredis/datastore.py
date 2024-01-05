@@ -1,4 +1,5 @@
 import random
+from collections import deque
 from dataclasses import dataclass
 from itertools import islice
 from threading import Lock
@@ -97,29 +98,34 @@ class DataStore:
 
     def prepend(self, key, value) -> int:
         with self._lock:
-            if key not in self._data:
-                self._data[key] = CacheEntry([])
-            if not isinstance(self._data[key].value, list):
+            item = self._data.get(key, CacheEntry([]))
+            if not isinstance(item.value, list):
                 raise TypeError
-            values = self._data[key].value
-            values.insert(0, value)
-            self._data[key] = CacheEntry(values)
-            return len(values)
+            item.value.insert(0, value)
+            self._data[key] = item
+            return len(item.value)
 
     def append(self, key, value):
         with self._lock:
-            if key not in self._data:
-                self._data[key] = CacheEntry([])
-            if not isinstance(self._data[key].value, list):
+            item = self._data.get(key, CacheEntry([]))
+            if not isinstance(item.value, list):
                 raise TypeError
-            values = self._data[key].value
-            values.append(value)
-            self._data[key] = CacheEntry(values)
-            return len(values)
+            item.value.append(value)
+            self._data[key] = item
+            return len(item.value)
 
     def range(self, key, start, stop):
         with self._lock:
             item = self._data.get(key, CacheEntry([]))
-            if not isinstance(self._data[key].value, list):
+            if not isinstance(item.value, list):
                 raise TypeError
-            return item.value[start:stop]
+
+            length = len(item.value)
+            if start > length:
+                return []
+            if stop > length:
+                stop = length
+            if start < 0:
+                start = max(length + start, 0)
+
+            return list(islice(item.value, start, stop))
