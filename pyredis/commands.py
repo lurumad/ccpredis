@@ -1,34 +1,41 @@
 import logging
 
 from pyredis.datastore import DataStore
+from pyredis.persistence import RedisPersistence
 from pyredis.resp_datatypes import SimpleString, BulkString, Error, Array, Integer
 
 
 logger = logging.getLogger(__name__)
 
 
-def handle_command(command: Array, datastore: DataStore):
-    command, *command_args = command.data
+def handle_command(array: Array, datastore: DataStore, persistence: RedisPersistence):
+    command, *command_args = array.data
     match command.data.decode().upper():
         case "PING":
             return handle_ping(command_args)
         case "ECHO":
             return handle_echo(command_args)
         case "SET":
+            persistence.log_command(array.data)
             return handle_set(command_args, datastore)
         case "GET":
             return handle_get(command_args, datastore)
         case "EXISTS":
             return handle_exists(command_args, datastore)
         case "DEL":
+            persistence.log_command(array.data)
             return handle_del(command_args, datastore)
         case "INCR":
+            persistence.log_command(array.data)
             return handle_incr(command_args, datastore)
         case "DECR":
+            persistence.log_command(array.data)
             return handle_decr(command_args, datastore)
         case "LPUSH":
+            persistence.log_command(array.data)
             return handle_lpush(command_args, datastore)
         case "RPUSH":
+            persistence.log_command(array.data)
             return handle_rpush(command_args, datastore)
         case "LRANGE":
             return handle_lrange(command_args, datastore)

@@ -5,6 +5,7 @@ import types
 
 from pyredis.commands import handle_command
 from pyredis.datastore import DataStore
+from pyredis.persistence import AppendOnlyFilePersistence
 from pyredis.protocol import parse
 
 DEFAULT_PORT = 6379
@@ -23,6 +24,7 @@ class Server:
         self._server.listen()
         self._server.setblocking(False)
         self._datastore = DataStore()
+        self._persistence = AppendOnlyFilePersistence("ccdb.aof")
         self._logger = logging.getLogger(__name__)
         sel.register(self._server, selectors.EVENT_READ, data=None)
 
@@ -54,7 +56,7 @@ class Server:
             if recv_data:
                 command, size = parse(recv_data)
                 self._logger.info(f"Command received: {command}")
-                result = handle_command(command, self._datastore)
+                result = handle_command(command, self._datastore, self._persistence)
                 self._logger.info(f"Command result: {result.resp_encode()}")
                 data.outb = result.resp_encode()
             else:

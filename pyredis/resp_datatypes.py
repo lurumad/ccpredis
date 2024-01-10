@@ -62,7 +62,8 @@ class Array:
         if len(self.data) == 0:
             return b"*0\r\n"
 
-        resp_elements = []
-        for element in self.data:
-            resp_elements.append(element.resp_encode().decode())
-        return f"*{len(resp_elements)}\r\n{''.join(resp_elements)}".encode()
+        encoded_elements = (element.resp_encode() for element in self.data)
+        encoded_data = b"".join(encoded_elements)
+        # for element in self.data:
+        #     resp_elements.append(element.resp_encode().decode())
+        return b"*%d\r\n%s" % (len(self.data), encoded_data)

@@ -4,6 +4,7 @@ import pytest
 
 from pyredis.commands import handle_command, encode_command
 from pyredis.datastore import DataStore
+from pyredis.persistence import NoPersistence
 from pyredis.resp_datatypes import (
     SimpleString,
     Error,
@@ -13,6 +14,7 @@ from pyredis.resp_datatypes import (
 )
 
 data_store = DataStore()
+no_persistence = NoPersistence()
 
 
 @pytest.mark.parametrize(
@@ -95,7 +97,7 @@ data_store = DataStore()
     ],
 )
 def test_handle_command(command, expected):
-    result = handle_command(command, data_store)
+    result = handle_command(command, data_store, no_persistence)
     assert result == expected
 
 
@@ -148,9 +150,9 @@ def test_get_command(command, expected):
         ]
     )
 
-    result = handle_command(set_command, datastore)
+    result = handle_command(set_command, datastore, no_persistence)
     assert result == SimpleString("OK")
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == expected
 
 
@@ -183,10 +185,10 @@ def test_exists_command(command, expected):
             ]
         )
 
-        result = handle_command(set_command, datastore)
+        result = handle_command(set_command, datastore, no_persistence)
         assert result == SimpleString("OK")
 
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == expected
 
 
@@ -219,10 +221,10 @@ def test_del_command(command, expected):
             ]
         )
 
-        result = handle_command(set_command, datastore)
+        result = handle_command(set_command, datastore, no_persistence)
         assert result == SimpleString("OK")
 
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == expected
 
 
@@ -242,28 +244,28 @@ def test_get_with_expiry():
         ]
     )
 
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == SimpleString("OK")
     time.sleep((px + 100) / 1000)
     command = Array([BulkString(b"get"), BulkString(f"{key}".encode())])
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == BulkString(None)
 
 
 def test_incr_invalid_command():
     datastore = DataStore()
     command = Array([BulkString(b"incr")])
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == Error("ERR wrong number of arguments for 'incr' command")
 
 
 def test_incr_invalid_key():
     datastore = DataStore()
     command = Array([BulkString(b"set"), BulkString(b"key"), BulkString(b"value")])
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == SimpleString("OK")
     command = Array([BulkString(b"incr"), BulkString(b"key")])
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == Error("ERR value is not an integer or out of range")
 
 
@@ -271,24 +273,24 @@ def test_incr_command():
     datastore = DataStore()
     for i in range(1, 5):
         command = Array([BulkString(b"incr"), BulkString(b"key")])
-        result = handle_command(command, datastore)
+        result = handle_command(command, datastore, no_persistence)
         assert result == Integer(i)
 
 
 def test_decr_invalid_command():
     datastore = DataStore()
     command = Array([BulkString(b"decr")])
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == Error("ERR wrong number of arguments for 'decr' command")
 
 
 def test_decr_invalid_key():
     datastore = DataStore()
     command = Array([BulkString(b"set"), BulkString(b"key"), BulkString(b"value")])
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == SimpleString("OK")
     command = Array([BulkString(b"decr"), BulkString(b"key")])
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == Error("ERR value is not an integer or out of range")
 
 
@@ -296,7 +298,7 @@ def test_decr_command():
     datastore = DataStore()
     for i in range(1, 5):
         command = Array([BulkString(b"decr"), BulkString(b"key")])
-        result = handle_command(command, datastore)
+        result = handle_command(command, datastore, no_persistence)
         assert result == Integer(i * -1)
 
 
@@ -310,17 +312,17 @@ def test_decr_command():
 )
 def test_lpush_invalid_command(command):
     datastore = DataStore()
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == Error("ERR wrong number of arguments for 'lpush' command")
 
 
 def test_lpush_invalid_key():
     datastore = DataStore()
     command = Array([BulkString(b"set"), BulkString(b"key"), BulkString(b"value")])
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == SimpleString("OK")
     command = Array([BulkString(b"lpush"), BulkString(b"key"), BulkString(b"value")])
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == Error(
         "WRONGTYPE Operation against a key holding the wrong kind of value"
     )
@@ -336,7 +338,7 @@ def test_lpush_command():
             BulkString(b"hello"),
         ]
     )
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == Integer(2)
 
 
@@ -350,17 +352,17 @@ def test_lpush_command():
 )
 def test_rpush_invalid_command(command):
     datastore = DataStore()
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == Error("ERR wrong number of arguments for 'rpush' command")
 
 
 def test_rpush_invalid_key():
     datastore = DataStore()
     command = Array([BulkString(b"set"), BulkString(b"key"), BulkString(b"value")])
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == SimpleString("OK")
     command = Array([BulkString(b"rpush"), BulkString(b"key"), BulkString(b"value")])
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == Error(
         "WRONGTYPE Operation against a key holding the wrong kind of value"
     )
@@ -376,7 +378,7 @@ def test_rpush_command():
             BulkString(b"world"),
         ]
     )
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == Integer(2)
 
 
@@ -418,7 +420,7 @@ def test_rpush_command():
 )
 def test_lrange_invalid_command(command, expected):
     datastore = DataStore()
-    result = handle_command(command, datastore)
+    result = handle_command(command, datastore, no_persistence)
     assert result == expected
 
 
@@ -488,8 +490,8 @@ def test_lpush_lrange_command(command, expected):
             BulkString(b"three"),
         ]
     )
-    handle_command(lpush, datastore)
-    result = handle_command(command, datastore)
+    handle_command(lpush, datastore, no_persistence)
+    result = handle_command(command, datastore, no_persistence)
     assert result == expected
 
 
@@ -559,6 +561,6 @@ def test_rpush_lrange_command(command, expected):
             BulkString(b"three"),
         ]
     )
-    handle_command(lpush, datastore)
-    result = handle_command(command, datastore)
+    handle_command(lpush, datastore, no_persistence)
+    result = handle_command(command, datastore, no_persistence)
     assert result == expected
