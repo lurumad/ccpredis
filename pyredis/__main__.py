@@ -53,7 +53,7 @@ async def main(port=None):
     persistence = AppendOnlyFilePersistence(filename=FILENAME)
     restore_from_file(FILENAME, datastore)
     loop = asyncio.get_running_loop()
-    loop.create_task(cache_monitor(datastore))
+    await loop.create_task(cache_monitor(datastore))
 
     server = await loop.create_server(
         lambda: RedisServerProtocol(datastore, persistence), REDIS_DEFAULT_HOST, port

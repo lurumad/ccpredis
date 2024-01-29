@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "pyredis"
+version = "0.1.0"
+description = "Redis Server in Python"
+authors = ["lurumad <luisruizpavon@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+typer = "0.9.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-watch = "^4.2.0"
+black = "^24.1.1"
+snakeviz = "^2.2.0"
+
+[tool.poetry.scripts]
+server = "pyredis"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

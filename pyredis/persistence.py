@@ -39,5 +39,6 @@ def restore_from_file(filename: str, datastore: DataStore):
 
 def update_datastore(buffer, datastore):
     from pyredis.commands import handle_command
+
     command, size = protocol.parse(buffer)
     handle_command(command, datastore, NoPersistence())
