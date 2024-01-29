@@ -22,7 +22,32 @@ Below, you'll find all the commands supported by the server:
 
 ## How to run it
 
+Install [poetry](https://python-poetry.org/docs/#installation) 
 
+Run the server
+
+```cmd
+poetry run python -m pyredis 
+```
+
+Install Redis and you can connect using `redis-cli`
+
+```cmd
+https://redis.io/docs/install/install-redis/
+```
+
+Test a command
+
+```cmd
+redis-cli ping
+PONG
+```
+
+## How to run tests
+
+```cdm
+poetry run pytest
+```
 
 
 
