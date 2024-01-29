@@ -30,11 +30,7 @@ Run the server
 poetry run python -m pyredis 
 ```
 
-Install Redis and you can connect using `redis-cli`
-
-```cmd
-https://redis.io/docs/install/install-redis/
-```
+Install [Redis](https://redis.io/docs/install/install-redis/) and you can connect using `redis-cli`
 
 Test a command
 
