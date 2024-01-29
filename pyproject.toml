@@ -15,9 +15,6 @@ pytest-watch = "^4.2.0"
 black = "^24.1.1"
 snakeviz = "^2.2.0"
 
-[tool.poetry.scripts]
-server = "pyredis"
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
