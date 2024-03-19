@@ -10,7 +10,7 @@ PROTOCOL_TERMINATOR = b"\r\n"
 PROTOCOL_TERMINATOR_LEN = len(PROTOCOL_TERMINATOR)
 
 
-def parse(buffer):
+def parse(buffer: bytes):
     protocol_terminator_index = buffer.find(PROTOCOL_TERMINATOR)
 
     if protocol_terminator_index == -1:

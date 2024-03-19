@@ -37,11 +37,10 @@ def main(
                 if data_type:
                     buffer = buffer[size:]
                     if isinstance(data_type, Array):
-                        for count, item in enumerate(data_type.data):
-                            print(f'{count + 1} "{item.as_str()}"')
+                        for count, item in enumerate(data_type):
+                            print(f'{count + 1} "{str(item)}"')
                     else:
                         print(data_type)
-                        print(data_type.as_str())
                     break
                 else:
                     print("(nil)")

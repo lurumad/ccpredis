@@ -1,5 +1,4 @@
 import random
-from collections import deque
 from dataclasses import dataclass
 from itertools import islice
 from threading import Lock
@@ -23,28 +22,28 @@ class DataStore:
         self._data = dict()
         self._lock = Lock()
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str):
         with self._lock:
             entry: CacheEntry = self._data[key]
             self._remove_expired_key(key, entry)
             return entry.value
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: Any):
         with self._lock:
             self._data[key] = CacheEntry(value=value)
 
-    def __contains__(self, item):
+    def __contains__(self, item: Any):
         return item in self._data
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: str):
         del self._data[key]
 
-    def set_with_expiry(self, key: any, value: any, expiry: float) -> None:
+    def set_with_expiry(self, key: str, value: any, expiry: float) -> None:
         with self._lock:
             calculated_expiry = time_ns() + self._to_nanoseconds(expiry)
             self._data[key] = CacheEntry(value=value, expiry=calculated_expiry)
 
-    def remove_expired_keys(self):
+    def remove_expired_keys(self) -> None:
         while True:
             count = COUNT_KEYS if len(self._data) >= COUNT_KEYS else len(self._data)
 
@@ -52,13 +51,13 @@ class DataStore:
                 break
 
             keys = random.sample(list(self._data), count)
-            if self._count_expired(keys) / count <= 0.25:
+            if self._expire(keys) / count <= 0.25:
                 break
 
-    def dbsize(self):
+    def dbsize(self) -> int:
         return len(self._data)
 
-    def _count_expired(self, keys):
+    def _expire(self, keys: list[str]) -> int:
         count_expired = 0
         for key in keys:
             with self._lock:
@@ -69,16 +68,16 @@ class DataStore:
                     count_expired += 1
         return count_expired
 
-    def _remove_expired_key(self, key, entry):
+    def _remove_expired_key(self, key: str, entry: CacheEntry) -> None:
         if entry.expired():
             del self._data[key]
             raise KeyError
 
     @staticmethod
-    def _to_nanoseconds(seconds):
+    def _to_nanoseconds(seconds: float) -> int:
         return seconds * 10**9
 
-    def increment(self, key) -> int:
+    def increment(self, key: str) -> int:
         with self._lock:
             if key not in self._data:
                 self._data[key] = CacheEntry(0)
@@ -87,7 +86,7 @@ class DataStore:
             self._data[key] = CacheEntry(value)
             return value
 
-    def decrement(self, key) -> int:
+    def decrement(self, key: str) -> int:
         with self._lock:
             if key not in self._data:
                 self._data[key] = CacheEntry(0)
@@ -96,7 +95,7 @@ class DataStore:
             self._data[key] = CacheEntry(value)
             return value
 
-    def prepend(self, key, value) -> int:
+    def prepend(self, key: str, value: Any) -> int:
         with self._lock:
             item = self._data.get(key, CacheEntry([]))
             if not isinstance(item.value, list):
@@ -105,7 +104,7 @@ class DataStore:
             self._data[key] = item
             return len(item.value)
 
-    def append(self, key, value):
+    def append(self, key: str, value: Any) -> int:
         with self._lock:
             item = self._data.get(key, CacheEntry([]))
             if not isinstance(item.value, list):
@@ -114,7 +113,7 @@ class DataStore:
             self._data[key] = item
             return len(item.value)
 
-    def range(self, key, start, stop):
+    def range(self, key: str, start: int, stop: int) -> list:
         with self._lock:
             item = self._data.get(key, CacheEntry([]))
             if not isinstance(item.value, list):

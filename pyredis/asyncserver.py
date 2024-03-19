@@ -18,7 +18,7 @@ class RedisServerProtocol(asyncio.Protocol):
     def connection_made(self, transport):
         self._transport = transport
 
-    def data_received(self, data):
+    def data_received(self, data: bytes):
         if not data:
             self._transport.close()
         self._buffer.extend(data)

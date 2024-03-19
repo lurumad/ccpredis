@@ -7,7 +7,7 @@ from pyredis.resp_datatypes import (
     Error,
     Integer,
     BulkString,
-    Array,
+    Array, RedisType,
 )
 
 
@@ -47,7 +47,7 @@ from pyredis.resp_datatypes import (
         ),
     ],
 )
-def test_protocol_parse(buffer, expected):
+def test_protocol_parse(buffer: bytes, expected: RedisType):
     actual = protocol.parse(buffer)
     assert actual == expected
 

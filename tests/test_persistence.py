@@ -32,14 +32,14 @@ def test_persists_and_load(setup_persistence):
                 BulkString("value".encode()),
             ]
         )
-        persistence.log_command(set_command.data)
+        persistence.log_command(set_command)
     del_command = Array(
         [
             BulkString(b"del"),
             BulkString("key1".encode()),
         ]
     )
-    persistence.log_command(del_command.data)
+    persistence.log_command(del_command)
     restore_from_file("ccdbtest.aof", datastore)
     get_command_1 = Array(
         [
