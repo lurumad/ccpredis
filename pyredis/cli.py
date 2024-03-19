@@ -36,7 +36,7 @@ def main(
 
                 if data_type:
                     buffer = buffer[size:]
-                    if isinstance(data_type, Array):
+                    if type(data_type) is Array:
                         for count, item in enumerate(data_type):
                             print(f'{count + 1} "{str(item)}"')
                     else:
